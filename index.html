@@ -1,11 +1,12 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-k7IhT3p1qPdDve2dTlulPUaot0KT5y1DzssAj5+nJfo='; style-src 'unsafe-inline'; font-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-73VwQXl5grDXtDAF5RtIfLY8TWWi0XZazFki09LKUyk='; style-src 'unsafe-inline'; font-src 'self'; img-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Heartbeat</title>
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Heartbeat">
 <meta name="theme-color" content="#ffffff">
+<link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="icon-180.png"><link rel="manifest" href="manifest.webmanifest">
 <style>
 @font-face{font-family:"Inter";src:url(fonts/InterVariable.woff2) format("woff2");font-weight:100 900;font-display:swap}
 @font-face{font-family:"Atkinson Hyperlegible";src:url(fonts/AtkinsonHyperlegible-Regular.woff2) format("woff2");font-weight:400;font-display:swap}
@@ -260,7 +261,7 @@ h3.sec{font:600 .8rem var(--display);letter-spacing:.08em;text-transform:upperca
 <div class="wrap">
   <header class="row between">
     <div>
-      <div class="brand"><svg viewBox="0 0 34 34" aria-hidden="true"><path d="M17 30C8 23 3 18 3 11.5 3 7.4 6.2 4 10.2 4c2.8 0 5.2 1.6 6.8 4 1.6-2.4 4-4 6.8-4C27.8 4 31 7.4 31 11.5 31 18 26 23 17 30z" fill="var(--brand)"/><path d="M6 16h6l2-4 3 8 2-5 1.5 1H28" fill="none" stroke="var(--surface)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><h1>Heartbeat</h1></div>
+      <div class="brand"><svg viewBox="0 0 512 512" aria-hidden="true"><defs><linearGradient id="hb-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff5a66"/><stop offset="1" stop-color="#c81e30"/></linearGradient></defs><rect width="512" height="512" rx="112" fill="url(#hb-g)"/><path d="M256 404C150 330 96 276 96 206c0-48 37-86 84-86 32 0 60 17 76 44 16-27 44-44 76-44 47 0 84 38 84 86 0 70-54 124-160 198z" fill="none" stroke="#fff" stroke-width="30" stroke-linejoin="round"/><path d="M60 250h104l28-52 42 120 34-92 22 24h162" fill="none" stroke="#fff" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/></svg><h1>Heartbeat</h1></div>
       <p class="sub" id="tagline">Your family's blood pressure, with help when a reading is too high or too low.</p>
     </div>
     <div class="signed" id="signed" hidden></div>
@@ -356,7 +357,7 @@ h3.sec{font:600 .8rem var(--display);letter-spacing:.08em;text-transform:upperca
         <li><b>Stay still and calm.</b> Don't talk, move or use your phone while it measures.</li>
         <li><b>Take 2–3 readings, 1 minute apart</b>, at the same times each day: morning before medicine and breakfast, and evening before dinner.</li>
       </ol>
-      <p class="note">Sources: <a href="https://www.heart.org/-/media/GRFW-Files/Know-Your-Risk/measuring-your-blood-pressure-at-home-English.pdf" target="_blank" rel="noopener">American Heart Association</a> · <a href="https://hjerteforeningen.dk/wp-content/uploads/2026/02/HF_Folder_Blodtryk_M65.pdf" target="_blank" rel="noopener">Hjerteforeningen</a> · ESH 2023 guideline</p>
+      <p class="note" id="prep-src"></p>
     </details>
     <div class="tri" id="tri">
       <div class="tri-row tri-head" aria-hidden="true"><span class="tri-n"></span><span>Top</span><span class="slash"></span><span>Bottom</span><span>Pulse</span></div>
@@ -507,7 +508,7 @@ h3.sec{font:600 .8rem var(--display);letter-spacing:.08em;text-transform:upperca
 
   <!-- Move: exercise and habits -->
   <section class="panel" id="move" aria-labelledby="move-h" hidden>
-    <h2 id="move-h">Move</h2>
+    <h2 id="move-h">Move and relax</h2>
     <div class="week">
       <svg viewBox="0 0 80 80" class="ring" aria-hidden="true"><circle cx="40" cy="40" r="32" class="ring-bg"/><circle cx="40" cy="40" r="32" class="ring-fg" id="ring-fg"/></svg>
       <div class="week-txt"><b id="week-min">0</b><span id="week-goal">of 150 active minutes this week</span></div>
@@ -523,8 +524,14 @@ h3.sec{font:600 .8rem var(--display);letter-spacing:.08em;text-transform:upperca
     <div class="banner" id="move-warn" hidden></div>
     <div class="banner soft" id="move-diab" hidden>With diabetes: check your blood sugar before and after exercise while you are starting out, and carry something sweet such as juice or glucose tablets.</div>
 
-    <h3 class="sec">Exercises</h3>
-    <div class="ex-grid" id="ex-grid"></div>
+    <h3 class="sec">Exercise</h3>
+    <div class="ex-grid" id="grid-ex"></div>
+
+    <h3 class="sec">Mind and breathing</h3>
+    <div class="ex-grid" id="grid-mind"></div>
+
+    <h3 class="sec">Sleep and calm</h3>
+    <div class="ex-grid" id="grid-sleep"></div>
 
     <h3 class="sec">Everyday habits</h3>
     <div class="habits">
@@ -543,7 +550,7 @@ h3.sec{font:600 .8rem var(--display);letter-spacing:.08em;text-transform:upperca
 
   <!-- exercise detail -->
   <section class="panel" id="exdetail" hidden>
-    <button type="button" class="ghost small back" id="ex-back">‹ All exercises</button>
+    <button type="button" class="ghost small back" id="ex-back">‹ All activities</button>
     <div class="ex-hero" id="ex-ill"></div>
     <div><span class="kicker" id="ex-kind"></span><h2 class="ex-title" id="ex-title"></h2></div>
     <div class="chips" id="ex-chips"></div>
@@ -698,7 +705,9 @@ let myAct=[],kidAct=[];
 let mine=[],kids=[],myReadings=[],kidReadings=[],sel=null,editing=null;
 let view="loading"; // intro | main | form
 let api=null; // {saveProfile, delProfile, saveReading, delReading}
-const people=()=>mine.concat(kids).sort((a,b)=>(a.rel==="me"?-1:b.rel==="me"?1:a.name.localeCompare(b.name)));
+// shared records can come from other family members: skip malformed profiles
+const okProfile=p=>p&&typeof p==="object"&&typeof p.id==="string"&&typeof p.name==="string"&&p.name.trim()!==""&&(p.birth==null||/^\d{4}-\d{2}-\d{2}$/.test(p.birth));
+const people=()=>mine.concat(kids).filter(okProfile).sort((a,b)=>(a.rel==="me"?-1:b.rel==="me"?1:a.name.localeCompare(b.name)));
 const person=id=>people().find(p=>p.id===id);
 const activityOf=p=>!p?[]:(p.shared?kidAct:myAct).filter(a=>a.pid===p.id);
 // stored and shared records are untrusted: keep only well-formed readings
@@ -716,6 +725,7 @@ function localApi(){
     delProfile:async p=>{mine=mine.filter(x=>x.id!==p.id);kids=kids.filter(x=>x.id!==p.id);lsSave();},
     saveReading:async(p,r)=>{up(p.shared?kidReadings:myReadings,r);lsSave();},
     saveActivity:async(p,a)=>{(p.shared?kidAct:myAct).push(a);lsSave();},
+    delActivity:async(p,a)=>{if(p.shared)kidAct=kidAct.filter(x=>x.id!==a.id);else myAct=myAct.filter(x=>x.id!==a.id);lsSave();},
     delReading:async(p,r)=>{if(p.shared)kidReadings=kidReadings.filter(x=>x.id!==r.id);else myReadings=myReadings.filter(x=>x.id!==r.id);lsSave();}
   };
 }
@@ -732,6 +742,7 @@ async function initStore(){
     delProfile:async p=>{await (p.shared?C.kids:C.mine).doc(p.id).delete();},
     saveReading:async(p,r)=>{await (p.shared?C.kidR:C.myR).doc(r.id).set(r);},
     saveActivity:async(p,a)=>{await (p.shared?C.kidA:C.myA).doc(a.id).set(a);},
+    delActivity:async(p,a)=>{await (p.shared?C.kidA:C.myA).doc(a.id).delete();},
     delReading:async(p,r)=>{await (p.shared?C.kidR:C.myR).doc(r.id).delete();}
   };
   let pending=6;
@@ -873,7 +884,7 @@ $("p-del").addEventListener("click",async()=>{
   const n=readingsOf(editing).length;
   if(!delArmed){delArmed=true;$("p-del").textContent="Confirm remove";$("p-status").textContent=n?`This also removes ${n} reading${n>1?"s":""}.`:"";return;}
   const p=editing;
-  try{for(const r of readingsOf(p))await api.delReading(p,r);await api.delProfile(p);sel=null;editing=null;show("intro");}
+  try{for(const r of readingsOf(p))await api.delReading(p,r);for(const a of activityOf(p))await api.delActivity(p,a);await api.delProfile(p);sel=null;editing=null;show("intro");}
   catch(e){$("p-status").textContent="Could not remove: "+(e?.code||"error")+".";}
 });
 $("pform").addEventListener("submit",async e=>{
@@ -892,7 +903,7 @@ $("pform").addEventListener("submit",async e=>{
   $("p-status").textContent="Saving…";
   try{
     // moving between private and shared storage also moves the readings
-    if(old&&old.shared!==shared){for(const r of readingsOf(old)){await api.saveReading(p,r);await api.delReading(old,r);}}
+    if(old&&old.shared!==shared){for(const r of readingsOf(old)){await api.saveReading(p,r);await api.delReading(old,r);}for(const a of activityOf(old)){await api.saveActivity(p,a);await api.delActivity(old,a);}}
     await api.saveProfile(p);sel=id;editing=null;nowFields();show("main");
   }catch(err){$("p-status").textContent="Could not save: "+(err?.code||"error")+". Try again.";}
 });
@@ -917,7 +928,16 @@ function markEmNumbers(){
     for(const n of hits){const f=document.createDocumentFragment();n.nodeValue.split(/\b(112)\b/).forEach((x,i)=>{if(i%2){const sp=document.createElement("span");sp.className="em-n";sp.textContent=x;f.append(sp);}else if(x)f.append(x);});n.replaceWith(f);}
   }
 }
+// measuring advice is the same across major guidelines; credit the user's national body first
+const GUIDE_SRC={DK:["Hjerteforeningen","https://hjerteforeningen.dk/wp-content/uploads/2026/02/HF_Folder_Blodtryk_M65.pdf"],US:["American Heart Association","https://www.heart.org/-/media/GRFW-Files/Know-Your-Risk/measuring-your-blood-pressure-at-home-English.pdf"],GB:["NHS","https://www.nhs.uk/conditions/blood-pressure-test/"],IE:["HSE","https://www2.hse.ie/conditions/high-blood-pressure-hypertension/"],DE:["Deutsche Hochdruckliga","https://www.hochdruckliga.de"],SE:["1177","https://www.1177.se"],NO:["Helsenorge","https://www.helsenorge.no"],CA:["Hypertension Canada","https://hypertension.ca"],AU:["Heart Foundation","https://www.heartfoundation.org.au"],NZ:["Heart Foundation NZ","https://www.heartfoundation.org.nz"]};
+const SRC_AHA=["American Heart Association","https://www.heart.org/-/media/GRFW-Files/Know-Your-Risk/measuring-your-blood-pressure-at-home-English.pdf"],SRC_WHO=["World Health Organization","https://www.who.int/news-room/fact-sheets/detail/hypertension"];
+function renderPrepSrc(cc){
+  const list=[GUIDE_SRC[cc]||SRC_WHO,SRC_AHA,["European Society of Hypertension 2023 guideline","https://www.eshonline.org"]].filter((x,i,a)=>a.findIndex(y=>y[0]===x[0])===i);
+  const el=$("prep-src");el.textContent="Sources: ";
+  list.forEach(([n,u],i)=>{if(i)el.append(" · ");const a=document.createElement("a");a.href=u;a.target="_blank";a.rel="noopener";a.textContent=n;el.append(a);});
+}
 function applyCountry(cc){
+  renderPrepSrc(cc);
   const [name,num,note]=EMERG[cc];EM={cc,num};
   const dial=num.replace(/[^0-9+]/g,"");
   document.querySelectorAll(".em-n").forEach(x=>x.textContent=num);
@@ -972,9 +992,9 @@ $("entry").addEventListener("submit",async e=>{
     b.addEventListener("click",()=>openAid(cat.aid));box.append(b);
   }
   $("status").textContent="Saving…";
-  try{await api.saveReading(p,r);renderAll();$("status").textContent="Saved.";}
-  catch(err){$("status").textContent="Could not save: "+(err?.code||"error")+". Try again.";}
-  document.querySelectorAll("#tri input").forEach(i=>i.value="");$("f-note").value="";drawAvg();nowFields();
+  try{await api.saveReading(p,r);renderAll();$("status").textContent="Saved.";
+    document.querySelectorAll("#tri input").forEach(i=>i.value="");$("f-note").value="";drawAvg();nowFields();}
+  catch(err){$("status").textContent="Could not save: "+(err?.code||"error")+". Your numbers are kept, try again.";}
   box.scrollIntoView({block:"nearest",behavior:"smooth"});
 });
 
@@ -1002,7 +1022,7 @@ function renderHistory(){
     mid.append(v,lab);
     const del=document.createElement("button");del.type="button";del.className="ghost small del";
     del.textContent=pendingDel===r.id?"Confirm delete":"Delete";
-    del.addEventListener("click",async()=>{if(pendingDel===r.id){pendingDel=null;await api.delReading(p,r);renderAll();}else{pendingDel=r.id;renderHistory();}});
+    del.addEventListener("click",async()=>{if(pendingDel===r.id){pendingDel=null;try{await api.delReading(p,r);}catch(e){$("count").textContent="Could not delete: "+(e?.code||"error")+".";return;}renderAll();}else{pendingDel=r.id;renderHistory();}});
     it.append(dot,tm,mid,del);dayEl.append(it);
   }
 }
@@ -1055,10 +1075,8 @@ $("exp-copy").addEventListener("click",async()=>{
 });
 
 // ---------- Move: exercises ----------
-// ---------- Move: exercises ----------
-// Flat human figure from joint positions. f = facing (1 right, -1 left).
 // Illustrations: Open Exercise Illustrations (CC0 1.0), github.com/hitmanrepo/open-exercise-illustrations
-const PIX={walk:["marching-in-place_start","marching-in-place_end"],cycle:["stationary-bike_hold"],wallsit:["wall-sit_hold"],grip:["towel-wring_start","towel-wring_end"],sts:["box-squat_end","box-squat_start"],pushup:["wall-push-up_start","wall-push-up_end"],breathe:["seated-knee-extension_start"],box:["seated-knee-extension_start"],mind:["butterfly-stretch_hold"],stretch:["wall-calf-stretch_hold"]};
+const PIX={walk:["marching-in-place_start","marching-in-place_end"],cycle:["stationary-bike_hold"],wallsit:["wall-sit_hold"],grip:["towel-wring_start","towel-wring_end"],sts:["box-squat_end","box-squat_start"],pushup:["wall-push-up_start","wall-push-up_end"],breathe:["seated-knee-extension_start"],box:["seated-knee-extension_start"],mind:["butterfly-stretch_hold"],ground:["seated-knee-extension_start"],kind:["butterfly-stretch_hold"],mwalk:["marching-in-place_start"],wind:["childs-pose_hold"],pmr:["knees-to-chest_hold"],b478:["lying-spinal-twist_hold"],sigh:["seated-knee-extension_start"],neck:["neck-side-stretch_hold"],stretch:["wall-calf-stretch_hold"]};
 const pic=(f,alt)=>`<img src="img/${f}.webp" alt="${alt}" loading="lazy" decoding="async">`;
 const picCard=(id,t)=>`<div class="pic">${pic(PIX[id][0],t)}</div>`;
 const picHero=(id,t)=>{const f=PIX[id];return `<div class="pics n${f.length}">${f.map((x,i)=>`<figure>${pic(x,t)}${f.length>1?`<figcaption>${i?"Then":"Start"}</figcaption>`:""}</figure>`).join("")}</div>`;};
@@ -1093,21 +1111,61 @@ const EX=[
    steps:["Stand an arm's length from a wall with hands on the wall at shoulder height.","Keep your body straight and bend your elbows to bring your chest towards the wall.","Push back to the start. Breathe out as you push.","Repeat for 45 seconds, then rest. Do 3 rounds."],
    safety:"Move slowly and keep breathing. Step closer to the wall to make it easier.",
    timer:{mode:"interval",sets:3,work:45,rest:60,workLabel:"Push-ups",restLabel:"Rest"}},
-  {id:"breathe",title:"Slow breathing",kind:"Relaxation",dur:"5 min",freq:"Daily",level:"Easy",
+  {id:"breathe",grp:"mind",title:"Slow breathing",kind:"Relaxation",dur:"5 min",freq:"Daily",level:"Easy",
    why:"Breathing slowly, about 6 breaths a minute, calms the nervous system and can lower blood pressure for a while. It also helps when a reading makes you anxious.",
    steps:["Sit comfortably with your back supported and feet on the floor.","Breathe in gently through your nose while the circle grows, for 5 seconds.","Breathe out slowly while the circle shrinks, for 5 seconds.","Continue for 5 minutes. Let your shoulders drop."],
    safety:"Breathe gently, not deeply. If you feel light-headed, return to normal breathing.",
    timer:{mode:"breath",total:300,sub:"6 breaths a minute",phases:[[5,"Breathe in",2.4],[5,"Breathe out",1]]}},
-  {id:"box",title:"Box breathing",kind:"Relaxation",dur:"4 min",freq:"Daily, or when stressed",level:"Easy",
+  {id:"box",grp:"mind",title:"Box breathing",kind:"Relaxation",dur:"4 min",freq:"Daily, or when stressed",level:"Easy",
    why:"Box breathing gives each breath four equal sides: in, hold, out, hold. The steady count slows your breathing and gives a worried mind something simple to follow. Use it before a reading or when you feel tense.",
    steps:["Sit upright with your back supported and feet on the floor. Rest your hands in your lap.","Breathe in through your nose for 4 seconds while the circle grows.","Hold the breath gently for 4 seconds.","Breathe out slowly through your mouth for 4 seconds while the circle shrinks.","Hold for 4 seconds, then start again. Continue for 4 minutes."],
    safety:"Hold gently, never strain. If holding is uncomfortable, or you are pregnant or have heart or lung disease, skip the holds and use Slow breathing instead.",
    timer:{mode:"breath",total:240,sub:"4 seconds each side",phases:[[4,"Breathe in",2.4],[4,"Hold",2.4],[4,"Breathe out",1],[4,"Hold",1]]}},
-  {id:"mind",title:"Mindfulness program",kind:"Mind",dur:"10 min",freq:"Daily for 4 weeks",level:"Easy",
+  {id:"mind",grp:"mind",title:"Mindfulness program",kind:"Mind",dur:"10 min",freq:"Daily for 4 weeks",level:"Easy",
    why:"Mindfulness means paying calm attention to the present moment without judging it. Regular practice lowers stress, and some studies show a small drop in blood pressure. It works best as a daily habit, so this is a 4-week program.",
    steps:["Week 1: one 10-minute guided session a day, sitting comfortably. Use the timer below. It tells you when to move your attention.","Week 2: keep the daily session. Add one mindful minute before each blood pressure reading: notice your breath and your body.","Week 3: keep the session. Do one everyday task mindfully each day, such as drinking tea, showering or walking, with full attention on what you sense.","Week 4: keep the session. When you notice stress, pause for 3 breaths: notice what you feel, then breathe slowly, then carry on.","Your mind will wander many times. That is normal. Each time you notice and come back is the practice."],
    safety:"Mindfulness is safe for most people. If difficult feelings come up and stay, stop and talk to your doctor. It does not replace your blood pressure medicine.",
    timer:{mode:"guide",total:600,cues:[[0,"Settle","Sit comfortably. Close your eyes or look softly at the floor."],[30,"Breath","Notice your breath, cool air in, warm air out. No need to change it."],[150,"Feet and legs","Move your attention to your feet, then up through your legs. Notice any warmth, tension or contact."],[240,"Back and belly","Notice your back against the chair and your belly rising and falling."],[330,"Shoulders and hands","Notice your shoulders, arms and hands. Let them soften."],[420,"Face","Notice your jaw, eyes and forehead. Let them relax."],[480,"Whole body","Feel your whole body breathing. When your mind wanders, gently come back."],[570,"Return","Notice the sounds around you. Slowly open your eyes."]]}},
+  {id:"ground",grp:"mind",title:"5-4-3-2-1 grounding",kind:"Mind",dur:"4 min",freq:"When worried or overwhelmed",level:"Easy",
+   why:"A simple technique used in anxiety care: naming what your senses notice pulls attention away from worrying thoughts and back to the present. Useful before a reading if you feel nervous.",
+   steps:["Sit or stand still. Take one slow breath.","Name 5 things you can see.","Name 4 things you can feel, such as your feet on the floor.","Name 3 things you can hear.","Name 2 things you can smell, and 1 thing you can taste.","Finish with three slow breaths."],
+   safety:"If anxiety is frequent or severe, talk to your doctor. Help is available.",
+   timer:{mode:"guide",total:240,cues:[[0,"Settle","Sit still and take one slow breath."],[20,"See","Name 5 things you can see. Take your time."],[70,"Feel","Name 4 things you can feel: your feet, your hands, your clothes, the chair."],[120,"Hear","Name 3 things you can hear, near and far."],[165,"Smell and taste","Name 2 things you can smell, and 1 thing you can taste."],[205,"Breathe","Three slow breaths. Notice how you feel now."]]}},
+  {id:"kind",grp:"mind",title:"Loving-kindness",kind:"Mind",dur:"8 min",freq:"3–5 times a week",level:"Easy",
+   why:"A meditation where you silently wish yourself and others well. Studies link it to less stress and more positive feelings, which helps on hard days.",
+   steps:["Sit comfortably and close your eyes.","Silently repeat: May I be safe. May I be healthy. May I be at ease.","Picture someone you love and wish them the same.","Then someone neutral, then someone difficult, then everyone.","If your mind wanders, gently return to the words."],
+   safety:"There is no right feeling. If it feels hard to wish yourself well, start with someone you love.",
+   timer:{mode:"guide",total:480,cues:[[0,"Settle","Sit comfortably. Let your breath slow down."],[45,"Yourself","Silently: May I be safe. May I be healthy. May I be at ease."],[150,"Someone you love","Picture them. May you be safe. May you be healthy. May you be at ease."],[255,"Someone neutral","A neighbour or a shop assistant. Wish them the same."],[345,"Someone difficult","If you can, wish them the same. If not, return to yourself."],[420,"Everyone","May all beings be safe, healthy and at ease."],[465,"Return","Notice your body. Slowly open your eyes."]]}},
+  {id:"mwalk",grp:"mind",title:"Mindful walking",kind:"Mind",dur:"10 min",freq:"Daily",level:"Easy",
+   why:"Walking with full attention combines gentle movement with mindfulness. A good choice if sitting still to meditate feels hard.",
+   steps:["Walk slowly, indoors or outside.","Feel each foot: heel, sole, toes.","Notice your breath, the air on your skin and the sounds around you.","When thoughts pull you away, return to the feeling of your feet."],
+   safety:"Choose a safe, quiet place. Keep your eyes open.",
+   timer:{mode:"guide",total:600,cues:[[0,"Start","Stand still. Feel your feet on the ground. Then start walking slowly."],[60,"Feet","Feel each step: heel, sole, toes."],[180,"Breath","Notice your breathing as you walk."],[300,"Senses","Notice the air, the light and the sounds around you."],[450,"Feet again","Bring your attention back to your feet."],[560,"Stop","Stand still. Notice how your body feels."]]}},
+  {id:"wind",grp:"sleep",title:"Wind down for sleep",kind:"Sleep",dur:"10 min",freq:"Every evening",level:"Easy",
+   why:"A regular, calm routine tells your body it is time to sleep. Sleep health bodies such as the NHS and the US CDC recommend steady sleep times, a dark cool bedroom and no screens before bed. Good sleep also helps blood pressure.",
+   steps:["Go to bed and get up at the same time every day, also at weekends.","One hour before bed: dim the lights and put phones and screens away.","No caffeine after mid-afternoon, and no heavy meals or alcohol late in the evening.","Keep the bedroom dark, quiet and cool.","Start the 10-minute wind-down below in bed with the lights off.","If you can't sleep after about 20 minutes, get up, do something calm in dim light, and go back when sleepy."],
+   safety:"Loud snoring with breathing pauses, or poor sleep for more than a few weeks, is worth discussing with your doctor.",
+   timer:{mode:"guide",total:600,cues:[[0,"Lie down","Lie comfortably. Let your body be heavy."],[40,"Slow breath","Breathe in gently, and breathe out a little longer than you breathe in."],[150,"Relax the face","Soften your forehead, eyes and jaw."],[240,"Relax the body","Let your shoulders, arms and legs sink into the bed."],[360,"Let thoughts pass","Thoughts will come. Notice them and let them drift past like clouds."],[480,"Rest","Stay with the slow breath. There is nothing you need to do."]]}},
+  {id:"pmr",grp:"sleep",title:"Progressive muscle relaxation",kind:"Sleep and calm",dur:"12 min",freq:"Evenings, or when tense",level:"Easy",
+   why:"You tense each muscle group for a few seconds, then let go. Feeling the difference teaches your body to relax. It is widely used for stress and trouble sleeping.",
+   steps:["Lie or sit comfortably.","Tense one muscle group firmly but not painfully for about 5 seconds.","Let go all at once and notice the relaxation for about 15 seconds.","Work from your feet up to your face, as the timer guides you."],
+   safety:"Tense gently and keep breathing. Skip any area that is injured or painful. With high blood pressure, use light tension.",
+   timer:{mode:"guide",total:720,cues:[[0,"Settle","Lie or sit comfortably. Breathe slowly."],[40,"Feet","Curl your toes and tense your feet for 5 seconds. Then let go."],[100,"Calves","Point your toes up, tense your calves. Then let go."],[160,"Thighs","Press your knees together and tense your thighs. Then let go."],[220,"Bottom","Squeeze your buttocks. Then let go."],[280,"Belly","Tighten your belly. Then let go."],[340,"Hands","Make tight fists. Then let go."],[400,"Arms","Bend your elbows and tense your arms. Then let go."],[460,"Shoulders","Lift your shoulders to your ears. Then let them drop."],[520,"Face","Scrunch your face. Then let it soften."],[580,"Whole body","Feel your whole body heavy and relaxed. Breathe slowly."]]}},
+  {id:"b478",grp:"sleep",title:"4-7-8 breathing",kind:"Sleep and calm",dur:"2 min",freq:"In bed, or when tense",level:"Easy",
+   why:"Breathe in for 4, hold for 7, breathe out for 8. The long breath out helps the body slow down. Many people use it to fall asleep.",
+   steps:["Sit or lie down. Rest the tip of your tongue behind your upper front teeth.","Breathe in quietly through your nose for 4 seconds.","Hold for 7 seconds.","Breathe out through your mouth with a soft whoosh for 8 seconds.","Do 4 rounds. Build up slowly to 8 rounds."],
+   safety:"Stop and breathe normally if you feel dizzy or light-headed. Skip the hold if you are pregnant or have heart or lung disease.",
+   timer:{mode:"breath",total:76,sub:"4 in · 7 hold · 8 out",phases:[[4,"Breathe in",2.4],[7,"Hold",2.4],[8,"Breathe out",1]]}},
+  {id:"sigh",grp:"sleep",title:"Calm down fast",kind:"Calm",dur:"3 min",freq:"Any time you feel stressed",level:"Easy",
+   why:"The physiological sigh: two breaths in through the nose, then one long breath out. A 2023 study found a few minutes a day reduced stress and improved mood more than mindfulness meditation alone.",
+   steps:["Breathe in through your nose.","Without breathing out, sip in a little more air to fill your lungs.","Breathe out slowly and fully through your mouth.","Repeat for 1 to 5 minutes."],
+   safety:"Breathe gently. If you feel light-headed, return to normal breathing.",
+   timer:{mode:"breath",total:180,sub:"Double breath in, long breath out",phases:[[2,"Breathe in",2],[1,"Sip in a little more",2.4],[6,"Long breath out",1]]}},
+  {id:"neck",grp:"sleep",title:"Neck and shoulder release",kind:"Calm",dur:"3 min",freq:"Daily, or after screen time",level:"Easy",
+   why:"Stress often settles in the neck and shoulders. Gentle stretches ease tension and are a calm break during the day.",
+   steps:["Sit or stand tall.","Tilt your ear towards your shoulder. Hold 30 seconds, then switch sides.","Roll your shoulders slowly backwards 5 times.","Lower your chin to your chest and hold 30 seconds."],
+   safety:"Move slowly and stretch only to a mild pull. Stop if you feel dizzy, numbness or pain.",
+   timer:{mode:"interval",sets:6,work:30,rest:5,workLabel:"Hold the stretch",restLabel:"Switch"}},
   {id:"stretch",title:"Stretch and unwind",kind:"Mobility",dur:"4 min",freq:"After activity or daily",level:"Easy",
    why:"Gentle stretching keeps you moving freely and is a calm way to finish a workout or end the day.",
    steps:["Side stretch: reach both arms up and lean gently to one side, then the other.","Calf stretch: hands on a wall, one leg back with the heel down.","Chest stretch: hands behind your back, open the chest.","Neck: tilt your ear towards your shoulder. Hold each stretch 30 seconds."],
@@ -1115,14 +1173,16 @@ const EX=[
    timer:{mode:"interval",sets:6,work:30,rest:10,workLabel:"Hold the stretch",restLabel:"Next stretch"}}
 ];
 const exById=id=>EX.find(e=>e.id===id);
-const ACT_KINDS=EX.map(e=>[e.id,e.title]).concat([["other","Other activity"]]);
+const grpOf=id=>exById(id)?.grp||"ex";
+// only physical activity counts towards the weekly active-minutes goal
+const ACT_KINDS=EX.filter(e=>grpOf(e.id)==="ex").map(e=>[e.id,e.title]).concat([["other","Other activity"]]);
 $("q-kind").innerHTML=ACT_KINDS.map(([v,t])=>`<option value="${v}">${t}</option>`).join("");
-$("ex-grid").innerHTML="";
+["ex","mind","sleep"].forEach(g=>$("grid-"+g).innerHTML="");
 for(const e of EX){
   const b=document.createElement("button");b.type="button";b.className="ex-card";
   b.innerHTML=picCard(e.id,"");
   const t=document.createElement("b");t.textContent=e.title;const m=document.createElement("span");m.textContent=`${e.kind} · ${e.dur}`;
-  b.append(t,m);b.addEventListener("click",()=>openEx(e.id));$("ex-grid").append(b);
+  b.append(t,m);b.addEventListener("click",()=>openEx(e.id));$("grid-"+grpOf(e.id)).append(b);
 }
 let curEx=null;
 function openEx(id){
@@ -1132,7 +1192,7 @@ function openEx(id){
   $("ex-why").textContent=e.why;
   $("ex-steps").innerHTML="";e.steps.forEach(x=>{const li=document.createElement("li");li.textContent=x;$("ex-steps").append(li);});
   $("ex-safety").textContent="Safety: "+e.safety;
-  $("ex-link").innerHTML=["breathe","box","mind"].includes(e.id)?'Read more: <a href="https://www.heart.org/en/healthy-living/healthy-lifestyle/stress-management" target="_blank" rel="noopener">AHA on stress management</a>':e.id==="wallsit"||e.id==="grip"?'Read more: <a href="https://www.heart.org/en/healthy-living/fitness/fitness-basics/strength-and-resistance-training-exercise" target="_blank" rel="noopener">AHA on strength training</a>':'Read more: <a href="https://www.heart.org/en/healthy-living/fitness/fitness-basics/aha-recs-for-physical-activity-in-adults" target="_blank" rel="noopener">AHA activity recommendations</a>';
+  $("ex-link").innerHTML=e.grp==="sleep"?'Read more: <a href="https://www.nhs.uk/every-mind-matters/mental-health-issues/sleep/" target="_blank" rel="noopener">NHS Every Mind Matters on sleep</a>':e.grp==="mind"?'Read more: <a href="https://www.heart.org/en/healthy-living/healthy-lifestyle/stress-management" target="_blank" rel="noopener">AHA on stress management</a>':e.id==="wallsit"||e.id==="grip"?'Read more: <a href="https://www.heart.org/en/healthy-living/fitness/fitness-basics/strength-and-resistance-training-exercise" target="_blank" rel="noopener">AHA on strength training</a>':'Read more: <a href="https://www.heart.org/en/healthy-living/fitness/fitness-basics/aha-recs-for-physical-activity-in-adults" target="_blank" rel="noopener">AHA activity recommendations</a>';
   show("main","ex");
 }
 $("ex-back").addEventListener("click",()=>{resetTimer();show("main","move");});
@@ -1223,7 +1283,7 @@ $("q-save").addEventListener("click",async()=>{
 function weekStart(){const n=new Date();const d=(n.getDay()+6)%7;const m=new Date(n.getFullYear(),n.getMonth(),n.getDate()-d);return `${m.getFullYear()}-${pad(m.getMonth()+1)}-${pad(m.getDate())}`;}
 function renderMove(p){
   const ws=weekStart();
-  const mins=activityOf(p).filter(a=>a.date>=ws).reduce((s,a)=>s+(+a.min||0),0);
+  const mins=activityOf(p).filter(a=>a.date>=ws&&grpOf(a.ex)==="ex").reduce((s,a)=>s+(+a.min||0),0);
   const goal=p.shared?420:150;
   $("week-min").textContent=mins;
   $("week-goal").textContent=p.shared?`of ${goal} active minutes this week (60 a day for children)`:`of ${goal} active minutes this week`;

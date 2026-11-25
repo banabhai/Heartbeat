@@ -7,6 +7,10 @@ A family blood pressure log: record readings, see trends, and get general guidan
 
 Not a medical device and not medical advice. See the in-app terms of use and privacy notice.
 
+## Licence
+
+All rights reserved. See [LICENSE](LICENSE). Third-party assets keep their own licences, listed below.
+
 ## Credits
 
 - Exercise illustrations: [Open Exercise Illustrations](https://github.com/hitmanrepo/open-exercise-illustrations) (CC0 1.0)
