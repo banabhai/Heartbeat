@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-73VwQXl5grDXtDAF5RtIfLY8TWWi0XZazFki09LKUyk='; style-src 'unsafe-inline'; font-src 'self'; img-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-ePj0ZaZaNdzkgeNMMExaXyRLC+zL6y+mX88hRJ9Z73I='; style-src 'unsafe-inline'; font-src 'self'; img-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Heartbeat</title>
@@ -261,7 +261,7 @@ h3.sec{font:600 .8rem var(--display);letter-spacing:.08em;text-transform:upperca
 <div class="wrap">
   <header class="row between">
     <div>
-      <div class="brand"><svg viewBox="0 0 512 512" aria-hidden="true"><defs><linearGradient id="hb-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff5a66"/><stop offset="1" stop-color="#c81e30"/></linearGradient></defs><rect width="512" height="512" rx="112" fill="url(#hb-g)"/><path d="M256 404C150 330 96 276 96 206c0-48 37-86 84-86 32 0 60 17 76 44 16-27 44-44 76-44 47 0 84 38 84 86 0 70-54 124-160 198z" fill="none" stroke="#fff" stroke-width="30" stroke-linejoin="round"/><path d="M60 250h104l28-52 42 120 34-92 22 24h162" fill="none" stroke="#fff" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/></svg><h1>Heartbeat</h1></div>
+      <div class="brand"><svg viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="112" fill="#16181d"/><path d="M256 410C148 334 92 280 92 208c0-50 39-90 88-90 33 0 61 18 76 46 15-28 43-46 76-46 49 0 88 40 88 90 0 72-56 126-164 202z" fill="#e0313f"/><path d="M120 252h72l24-44 36 100 30-80 20 24h90" fill="none" stroke="#fff" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/></svg><h1>Heartbeat</h1></div>
       <p class="sub" id="tagline">Your family's blood pressure, with help when a reading is too high or too low.</p>
     </div>
     <div class="signed" id="signed" hidden></div>
@@ -758,7 +758,16 @@ $("help-btn").addEventListener("click",()=>show("main","help"));
 $("help-open").addEventListener("click",()=>show("main","help"));
 function show(v,t){if(t&&t!=="ex"&&tab==="ex"&&typeof resetTimer==="function")resetTimer();view=v;if(t)tab=t;renderAll();window.scrollTo({top:0});}
 document.querySelectorAll("[data-tab]").forEach(b=>b.addEventListener("click",()=>show("main",b.dataset.tab)));
+// remember who used the app last on this device, and reopen on them
+var resumed=false;
+function setSel(id){sel=id;try{id?localStorage.setItem("hb-last",id):localStorage.removeItem("hb-last");}catch(e){}}
+function tryResume(){
+  if(resumed||view!=="intro"||sel||!termsOk())return;
+  let id=null;try{id=localStorage.getItem("hb-last");}catch(e){}
+  if(id&&person(id)){resumed=true;sel=id;view="main";tab="home";nowFields();}
+}
 function renderAll(){
+  tryResume();
   const p=person(sel);
   if(view==="main"&&!p)view="intro";
   if(view==="intro"&&!people().length&&api&&termsOk()){openForm(null,true);return;}
@@ -792,7 +801,7 @@ function renderIntro(){
     const b=document.createElement("button");b.type="button";b.className="tile";
     const n=document.createElement("b");n.textContent=p.name;
     const a=ageOn(p.birth);const s=document.createElement("span");s.textContent=(p.shared?"Child · ":(REL[p.rel]?REL[p.rel]+" · ":""))+(a!=null?a+" years":"");
-    b.append(n,s);b.addEventListener("click",()=>{sel=p.id;$("result").hidden=true;nowFields();show("main","home");});
+    b.append(n,s);b.addEventListener("click",()=>{setSel(p.id);$("result").hidden=true;nowFields();show("main","home");});
     box.append(b);
   }
   const add=document.createElement("button");add.type="button";add.className="tile add";add.textContent="+ Create profile";
@@ -835,7 +844,7 @@ function renderMeds(p){
     box.append(h,m);
   });
 }
-$("switch").addEventListener("click",()=>show("intro"));
+$("switch").addEventListener("click",()=>{resumed=true;show("intro");});
 
 // helper / self tabs
 function setTab(help){
@@ -884,7 +893,7 @@ $("p-del").addEventListener("click",async()=>{
   const n=readingsOf(editing).length;
   if(!delArmed){delArmed=true;$("p-del").textContent="Confirm remove";$("p-status").textContent=n?`This also removes ${n} reading${n>1?"s":""}.`:"";return;}
   const p=editing;
-  try{for(const r of readingsOf(p))await api.delReading(p,r);for(const a of activityOf(p))await api.delActivity(p,a);await api.delProfile(p);sel=null;editing=null;show("intro");}
+  try{for(const r of readingsOf(p))await api.delReading(p,r);for(const a of activityOf(p))await api.delActivity(p,a);await api.delProfile(p);setSel(null);editing=null;show("intro");}
   catch(e){$("p-status").textContent="Could not remove: "+(e?.code||"error")+".";}
 });
 $("pform").addEventListener("submit",async e=>{
@@ -904,7 +913,7 @@ $("pform").addEventListener("submit",async e=>{
   try{
     // moving between private and shared storage also moves the readings
     if(old&&old.shared!==shared){for(const r of readingsOf(old)){await api.saveReading(p,r);await api.delReading(old,r);}for(const a of activityOf(old)){await api.saveActivity(p,a);await api.delActivity(old,a);}}
-    await api.saveProfile(p);sel=id;editing=null;nowFields();show("main");
+    await api.saveProfile(p);setSel(id);editing=null;nowFields();show("main");
   }catch(err){$("p-status").textContent="Could not save: "+(err?.code||"error")+". Try again.";}
 });
 
@@ -1298,6 +1307,8 @@ function renderMove(p){
 nowFields();
 renderAll();
 initStore();
+// standalone site only: cache the app so it opens offline like an installed app
+if("serviceWorker" in navigator&&location.protocol==="https:"&&location.hostname.endsWith("github.io"))navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 
 </body></html>
