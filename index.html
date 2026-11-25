@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-ePj0ZaZaNdzkgeNMMExaXyRLC+zL6y+mX88hRJ9Z73I='; style-src 'unsafe-inline'; font-src 'self'; img-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-W41p9L+RAEJwjISago9ssFtOrRhcnpbgjDlJGHGWM8I='; style-src 'unsafe-inline'; font-src 'self'; img-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Heartbeat</title>
@@ -312,6 +312,13 @@ h3.sec{font:600 .8rem var(--display);letter-spacing:.08em;text-transform:upperca
     <p class="note cc-note" id="cc-note" hidden></p>
   </section>
 
+  <form class="panel" id="lock" novalidate hidden>
+    <h2 id="lock-h">Enter PIN</h2>
+    <label for="lock-pin">PIN<input type="password" id="lock-pin" inputmode="numeric" maxlength="6" autocomplete="current-password"></label>
+    <div class="row"><button type="submit" id="lock-go">Unlock</button><button type="button" class="ghost" id="lock-back">Choose another person</button><span class="status" id="lock-status" role="status"></span></div>
+    <details><summary>Forgot the PIN?</summary><p class="note">The PIN can't be recovered, because Heartbeat only keeps a scrambled copy of it. The only way back in is to clear Heartbeat's stored data in your browser settings. That removes every profile and reading on this device, so export a CSV backup now and then.</p></details>
+  </form>
+
   <form class="panel" id="pform" novalidate hidden>
     <h2 id="pform-h">Create a profile</h2>
     <fieldset>
@@ -335,6 +342,9 @@ h3.sec{font:600 .8rem var(--display);letter-spacing:.08em;text-transform:upperca
         <label for="p-tdia">Doctor's target, bottom <small>optional, e.g. 80</small><input type="number" id="p-tdia" inputmode="numeric" min="40" max="130"></label>
       </div>
       <label for="p-dphone">Doctor's phone <small>optional, your GP or clinic</small><input type="tel" id="p-dphone" maxlength="30"></label>
+      <label for="p-pin">PIN lock <small id="p-pin-hint">optional, 4 to 6 digits. Asked each time this person is opened.</small><input type="password" id="p-pin" inputmode="numeric" maxlength="6" autocomplete="new-password"></label>
+      <label for="p-pin2" id="p-pin2-wrap">Repeat PIN<input type="password" id="p-pin2" inputmode="numeric" maxlength="6" autocomplete="new-password"></label>
+      <label for="p-pinoff" id="p-pinoff-wrap" style="flex-direction:row;align-items:center;gap:10px;font-weight:400" hidden><input type="checkbox" id="p-pinoff" style="width:auto"> Remove the PIN</label>
       <label for="p-preg" id="p-preg-wrap" style="flex-direction:row;align-items:center;gap:10px;font-weight:400" hidden><input type="checkbox" id="p-preg" style="width:auto"> Currently pregnant <small>lower emergency threshold, 160/110</small></label>
       <label for="p-cond">Health conditions <small>e.g. diabetes, kidney disease, heart condition</small><textarea id="p-cond" maxlength="500"></textarea></label>
       <label for="p-meds">Medicines <small>name and dose, if any. Shown to helpers in an emergency.</small><textarea id="p-meds" maxlength="500"></textarea></label>
@@ -604,7 +614,7 @@ h3.sec{font:600 .8rem var(--display);letter-spacing:.08em;text-transform:upperca
           <li><b>Where it is stored:</b> in the standalone app, only on your own device, in this browser's storage. Inside Claude, in your own Claude account's private storage for this app. Records of children are visible to the family members you share the app with.</li>
           <li><b>What we do not do:</b> the app does not send your data to us or to anyone else. There is no tracking, no analytics, no advertising, and your data is never sold or used outside the app.</li>
           <li><b>Your rights:</b> you can see all your data in the app, export it under <b>Profile</b> then <b>Export</b>, correct it with <b>Edit details</b>, and delete it with <b>Remove person</b>, which also deletes that person's readings. You can also complain to your data protection authority (in Denmark, Datatilsynet).</li>
-          <li><b>Keeping it safe:</b> anyone who can unlock your phone or computer can open the app. Use a screen lock, and don't use Heartbeat on a shared or public device.</li>
+          <li><b>Keeping it safe:</b> each person can set a PIN in <b>Edit details</b>. Heartbeat stores only a scrambled copy (a salted PBKDF2 hash), never the PIN itself, and locks again after 2 minutes away. The PIN stops others in your family from opening a profile in the app. It does not encrypt the stored data, so anyone who can unlock your phone or computer and knows how to read browser storage could still see it. Use a screen lock, and don't use Heartbeat on a shared or public device.</li>
         </ul>
         <h4>7. No warranty, limited liability</h4>
         <p>Heartbeat is provided "as is", without any warranty that it is complete, accurate, available or error-free. To the extent the law allows, we are not liable for any loss or harm that comes from using the app or relying on its information. Nothing in these terms limits liability that cannot be limited by law, such as for death or personal injury caused by negligence, or your rights as a consumer.</p>
@@ -615,6 +625,7 @@ h3.sec{font:600 .8rem var(--display);letter-spacing:.08em;text-transform:upperca
         <p class="note">Version 1, 25 November 2026.</p>
       </div></details>
     </div>
+    <p class="note" id="app-ver">Heartbeat app version 1.3.0</p>
   </section>
 
   <section class="panel" aria-labelledby="hist-h" id="hist" hidden>
@@ -650,7 +661,7 @@ h3.sec{font:600 .8rem var(--display);letter-spacing:.08em;text-transform:upperca
     </nav>
   </div>
 
-  <p class="note" id="footnote">Adult colour bands follow the American Heart Association categories, which also apply from age 13. Children under 13 need a doctor's range based on age and height, so their readings are not colour-coded. This log does not replace advice from your doctor. In an emergency in Denmark, call <strong>112</strong>.</p>
+  <p class="note" id="footnote">Adult colour bands follow the American Heart Association categories, which also apply from age 13. Children under 13 need a doctor's range based on age and height, so their readings are not colour-coded. This log does not replace advice from your doctor. In an emergency in <span class="cc-name">Denmark</span>, call <strong>112</strong>.</p>
 </div>
 
 <script>
@@ -766,11 +777,53 @@ function tryResume(){
   let id=null;try{id=localStorage.getItem("hb-last");}catch(e){}
   if(id&&person(id)){resumed=true;sel=id;view="main";tab="home";nowFields();}
 }
+// ---------- PIN lock ----------
+// Only a salted PBKDF2-SHA256 hash is stored. It keeps family members out of each other's profiles; it does not encrypt data.
+const unlocked=new Set();
+const hex=b=>[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("");
+async function pinHash(pin,salt){
+  salt=salt||hex(crypto.getRandomValues(new Uint8Array(16)));
+  const key=await crypto.subtle.importKey("raw",new TextEncoder().encode(pin),"PBKDF2",false,["deriveBits"]);
+  const bits=await crypto.subtle.deriveBits({name:"PBKDF2",hash:"SHA-256",salt:new TextEncoder().encode(salt),iterations:100000},key,256);
+  return {salt,hash:hex(bits)};
+}
+const okPin=x=>x&&typeof x.salt==="string"&&/^[0-9a-f]{64}$/.test(x.hash);
+function pinWait(){let w={};try{w=JSON.parse(localStorage.getItem("hb-pinwait")||"{}")||{};}catch(e){}return w;}
+function setPinWait(w){try{localStorage.setItem("hb-pinwait",JSON.stringify(w));}catch(e){}}
+let lockFor=null;
+function showLock(p){
+  ["intro","pform"].concat(ALLSEC).forEach(id=>$(id).hidden=true);
+  $("help-btn").hidden=true;$("tabbar").hidden=true;document.querySelector(".wrap").classList.remove("app");
+  if(lockFor!==p.id){lockFor=p.id;$("lock-h").textContent="Enter "+p.name+"'s PIN";$("lock-pin").value="";$("lock-status").textContent="";}
+  $("lock-pin").focus();
+}
+$("lock").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const p=person(sel);if(!p||!p.pin)return renderAll();
+  const w=pinWait(),me=w[p.id]||{n:0,until:0};
+  if(Date.now()<me.until){$("lock-status").textContent="Too many tries. Wait "+Math.ceil((me.until-Date.now())/1000)+" seconds.";return;}
+  const v=$("lock-pin").value;
+  const ok=okPin(p.pin)&&(await pinHash(v,p.pin.salt)).hash===p.pin.hash;
+  $("lock-pin").value="";
+  if(ok){delete w[p.id];setPinWait(w);unlocked.add(p.id);lockFor=null;$("lock").hidden=true;show("main","home");return;}
+  me.n++;if(me.n>=5){me.n=0;me.until=Date.now()+30000;}w[p.id]=me;setPinWait(w);
+  $("lock-status").textContent=me.until>Date.now()?"Too many tries. Wait 30 seconds.":"Wrong PIN. Try again.";
+  $("lock-pin").focus();
+});
+$("lock-back").addEventListener("click",()=>{lockFor=null;resumed=true;sel=null;show("intro");});
+let hiddenAt=0;
+document.addEventListener("visibilitychange",()=>{
+  if(document.hidden){hiddenAt=Date.now();return;}
+  if(hiddenAt&&Date.now()-hiddenAt>120000&&unlocked.size){unlocked.clear();if(typeof resetTimer==="function")resetTimer();renderAll();}
+});
 function renderAll(){
   tryResume();
   const p=person(sel);
   if(view==="main"&&!p)view="intro";
   if(view==="intro"&&!people().length&&api&&termsOk()){openForm(null,true);return;}
+  const locked=view==="main"&&p&&p.pin&&!unlocked.has(p.id);
+  $("lock").hidden=!locked;
+  if(locked){showLock(p);return;}
   $("intro").hidden=view!=="intro";
   $("pform").hidden=view!=="form";
   const main=view==="main";
@@ -844,7 +897,7 @@ function renderMeds(p){
     box.append(h,m);
   });
 }
-$("switch").addEventListener("click",()=>{resumed=true;show("intro");});
+$("switch").addEventListener("click",()=>{resumed=true;unlocked.clear();show("intro");});
 
 // helper / self tabs
 function setTab(help){
@@ -859,7 +912,7 @@ function openAid(id){const d=$(id);if(!d)return;show("main","aid");document.quer
 function openForm(p,first){
   editing=p;view="form";
   $("intro").hidden=true;$("pform").hidden=false;
-  ALLSEC.forEach(id=>$(id).hidden=true);$("help-btn").hidden=true;
+  ALLSEC.forEach(id=>$(id).hidden=true);$("help-btn").hidden=true;$("lock").hidden=true;
   $("pform-h").textContent=p?"Edit "+p.name:(first?"Welcome. Start by creating your profile":"Create a profile");
   $("p-name").value=p?.name||"";
   $("p-rel").value=p?.rel||(first?"me":"other");
@@ -871,6 +924,8 @@ function openForm(p,first){
   $("p-meds").value=p?.meds||"";
   $("p-guard").value=p?.guard||"";
   $("p-tsys").value=p?.tsys||"";$("p-tdia").value=p?.tdia||"";$("p-dphone").value=p?.dphone||"";$("p-preg").checked=!!p?.preg;
+  $("p-pin").value=$("p-pin2").value="";$("p-pinoff").checked=false;$("p-pinoff-wrap").hidden=!p?.pin;
+  $("p-pin-hint").textContent=p?.pin?"A PIN is set. Type a new one to change it, or leave empty to keep it.":"optional, 4 to 6 digits. Asked each time this person is opened.";
   $("p-del").hidden=!p;$("p-cancel").hidden=!!first&&!people().length;
   $("p-status").textContent="";delArmed=false;$("p-del").textContent="Remove person";
   childHint();
@@ -903,6 +958,9 @@ $("pform").addEventListener("submit",async e=>{
   const age=ageOn(birth);
   if(age<0||age>120){$("p-status").textContent="Check the birth date.";return;}
   const num=id=>$(id).value?+$(id).value:null;
+  const pin=$("p-pin").value,pin2=$("p-pin2").value;
+  if(pin&&!/^\d{4,6}$/.test(pin)){$("p-status").textContent="The PIN must be 4 to 6 digits.";return;}
+  if(pin!==pin2){$("p-status").textContent="The two PINs don't match.";return;}
   const shared=age<18;
   const old=editing;
   const id=old?old.id:(!mine.some(x=>x.id==="self")&&!shared?"self":mkId());
@@ -911,6 +969,8 @@ $("pform").addEventListener("submit",async e=>{
     tsys:num("p-tsys"),tdia:num("p-tdia"),dphone:$("p-dphone").value.trim()||null,preg:$("p-sex").value==="female"&&$("p-preg").checked,updated:new Date().toISOString()};
   $("p-status").textContent="Saving…";
   try{
+    if(pin)p.pin=await pinHash(pin);else if(old?.pin&&!$("p-pinoff").checked)p.pin=old.pin;
+    if(p.pin)unlocked.add(id);
     // moving between private and shared storage also moves the readings
     if(old&&old.shared!==shared){for(const r of readingsOf(old)){await api.saveReading(p,r);await api.delReading(old,r);}for(const a of activityOf(old)){await api.saveActivity(p,a);await api.delActivity(old,a);}}
     await api.saveProfile(p);setSel(id);editing=null;nowFields();show("main");
