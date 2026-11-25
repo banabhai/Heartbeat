@@ -1,0 +1,1243 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-k7IhT3p1qPdDve2dTlulPUaot0KT5y1DzssAj5+nJfo='; style-src 'unsafe-inline'; font-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Heartbeat</title>
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Heartbeat">
+<meta name="theme-color" content="#ffffff">
+<style>
+@font-face{font-family:"Inter";src:url(fonts/InterVariable.woff2) format("woff2");font-weight:100 900;font-display:swap}
+@font-face{font-family:"Atkinson Hyperlegible";src:url(fonts/AtkinsonHyperlegible-Regular.woff2) format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Atkinson Hyperlegible";src:url(fonts/AtkinsonHyperlegible-Bold.woff2) format("woff2");font-weight:700;font-display:swap}
+</style>
+</head><body>
+<title>Heartbeat</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: one narrow column. Start screen picks a person; main view = compact person bar, entry, history, first aid, tools. */
+:root{
+  --bg:#f3f4f5; --surface:#ffffff; --fg:#16181d; --muted:#6b7079; --line:#e6e8eb; --accent:#16181d; --accent-bg:#f3f4f5; --brand:#e0313f;
+  --ok:#2e7d3a; --elev:#a87b00; --s1:#c25a14; --s2:#c62828; --crisis:#8e0b16; --low:#1d64a8; --na:#5b6b75;
+  --ok-bg:#e7f4e9; --elev-bg:#fbf3d9; --s1-bg:#fbe9dc; --s2-bg:#fbe3e3; --crisis-bg:#f8d3d6; --low-bg:#e2eef9; --na-bg:#eef1f3;
+  --display:"Inter",system-ui,sans-serif; --body:"Atkinson Hyperlegible",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#1c1f24; --surface:#111317; --fg:#eef0f3; --muted:#9aa0a9; --line:#2a2e35; --accent:#eef0f3; --accent-bg:#1c1f24; --brand:#ff5a66;
+  --ok:#6cc47a; --elev:#e3b93a; --s1:#f08c4a; --s2:#ff6b6b; --crisis:#ff8a95; --low:#6fb0ee; --na:#97a8b1;
+  --ok-bg:#1a2e1e; --elev-bg:#2e2710; --s1-bg:#33200f; --s2-bg:#381617; --crisis-bg:#4a0f16; --low-bg:#13263a; --na-bg:#1e2a30; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#1c1f24; --surface:#111317; --fg:#eef0f3; --muted:#9aa0a9; --line:#2a2e35; --accent:#eef0f3; --accent-bg:#1c1f24; --brand:#ff5a66;
+  --ok:#6cc47a; --elev:#e3b93a; --s1:#f08c4a; --s2:#ff6b6b; --crisis:#ff8a95; --low:#6fb0ee; --na:#97a8b1;
+  --ok-bg:#1a2e1e; --elev-bg:#2e2710; --s1-bg:#33200f; --s2-bg:#381617; --crisis-bg:#4a0f16; --low-bg:#13263a; --na-bg:#1e2a30; color-scheme:dark}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--fg);font:16px/1.5 var(--body)}
+.wrap{max-width:640px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:20px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
+h1{font-size:1.6rem}
+h2{font-size:1.1rem}
+.sub{color:var(--muted);margin:4px 0 0}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:14px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:.9rem}
+label small{font-weight:400;color:var(--muted)}
+input,textarea,select{font:inherit;font-size:1.1rem;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);min-width:0;width:100%;box-sizing:border-box}
+input[type=number]{font-variant-numeric:tabular-nums}
+textarea{font-size:.95rem;min-height:90px}
+input:focus-visible,textarea:focus-visible,select:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+button{font:inherit;font-weight:700;border-radius:8px;padding:12px 16px;border:1px solid var(--accent);background:var(--accent);color:var(--surface);cursor:pointer}
+button.ghost{background:transparent;color:var(--accent)}
+button.small{padding:6px 10px;font-size:.85rem}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.between{justify-content:space-between}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.tile{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;padding:16px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--fg)}
+.tile b{font-family:var(--display);font-size:1.15rem}
+.tile span{font-weight:400;font-size:.85rem;color:var(--muted)}
+.tile.add{border-style:dashed;color:var(--accent);justify-content:center}
+.pname{font-family:var(--display);font-size:1.25rem}
+.who{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px 16px;font-size:.9rem;padding-top:10px}
+.who div{display:flex;flex-direction:column;min-width:0;overflow-wrap:anywhere}
+.who b{font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.signed{font-size:.85rem;color:var(--muted);display:flex;align-items:center;gap:8px}
+.signed img{width:24px;height:24px;border-radius:50%}
+.result{border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:8px;border-left:6px solid var(--c);background:var(--cb)}
+.result strong{font-family:var(--display);font-size:1.15rem;color:var(--c)}
+.call{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.call a{display:inline-block;background:var(--crisis);color:var(--surface);font-weight:700;font-size:1.2rem;padding:10px 18px;border-radius:8px;text-decoration:none}
+.c-ok{--c:var(--ok);--cb:var(--ok-bg)} .c-elev{--c:var(--elev);--cb:var(--elev-bg)} .c-s1{--c:var(--s1);--cb:var(--s1-bg)}
+.c-s2{--c:var(--s2);--cb:var(--s2-bg)} .c-crisis{--c:var(--crisis);--cb:var(--crisis-bg)} .c-low{--c:var(--low);--cb:var(--low-bg)} .c-na{--c:var(--na);--cb:var(--na-bg)}
+@media (prefers-reduced-motion:no-preference){.result.c-crisis,.dot.c-crisis{animation:pulse 1.2s ease-in-out infinite}}
+@keyframes pulse{50%{opacity:.55}}
+.legend{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px 12px;font-size:.85rem;color:var(--muted)}
+.legend span{display:flex;gap:6px;align-items:center}
+.dot{width:12px;height:12px;border-radius:50%;background:var(--c);flex:none}
+.day{display:flex;flex-direction:column;gap:6px}
+.day h3{font:700 .8rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:8px 0 0}
+.item{display:grid;grid-template-columns:auto 3.2rem minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 12px;border-radius:8px;background:var(--cb);border-left:5px solid var(--c)}
+.item .t{color:var(--muted);font-variant-numeric:tabular-nums}
+.item .v{font-family:var(--display);font-weight:700;font-size:1.15rem;font-variant-numeric:tabular-nums}
+.item .v small{font-family:var(--body);font-weight:400;color:var(--muted);font-size:.85rem}
+.item .lab{color:var(--c);font-weight:700;font-size:.85rem;overflow-wrap:anywhere}
+.note{font-size:.85rem;color:var(--muted)}
+.status{font-size:.9rem;color:var(--muted);min-height:1.4em}
+.empty{color:var(--muted);text-align:center;padding:24px 8px}
+details summary{cursor:pointer;font-weight:700;font-family:var(--display)}
+fieldset{border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:12px}
+/* first aid guide */
+.aid{border-radius:10px;border:1px solid var(--line);border-left:6px solid var(--c);padding:12px 14px;background:var(--surface)}
+.aid[open]{background:var(--cb)}
+.aid summary{color:var(--c);font-size:1.05rem}
+.aid .body{display:flex;flex-direction:column;gap:12px;padding-top:12px}
+.aid h3{font-size:1rem;color:var(--fg)}
+.aid ol,.aid ul{margin:0;padding-left:1.3rem;display:flex;flex-direction:column;gap:6px}
+.warn{border:2px solid var(--crisis);border-radius:8px;padding:10px 12px;background:var(--surface)}
+.warn h3{color:var(--crisis)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tabs button{padding:8px 12px;font-size:.9rem;background:transparent;color:var(--accent)}
+.tabs button[aria-selected="true"]{background:var(--accent);color:var(--surface)}
+.meds{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;background:var(--surface);font-size:.95rem;white-space:pre-wrap;overflow-wrap:anywhere}
+/* app shell: bottom tab bar */
+.wrap.app{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+.tabbar nav{max-width:640px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
+.tabbar button{background:transparent;border:0;border-radius:0;color:var(--muted);padding:10px 4px 12px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.8rem}
+.tabbar button svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tabbar button[aria-current="page"]{color:var(--accent)}
+.tabbar button.aidtab[aria-current="page"]{color:var(--crisis)}
+.brand{display:flex;align-items:center;gap:10px}
+.brand svg{width:34px;height:34px;flex:none}
+/* minimal theme: no boxes, whitespace separates sections, one ink accent, red only for the brand and warnings */
+body{background:var(--surface)}
+.wrap{gap:32px}
+h1{font-size:1.35rem;font-weight:700;letter-spacing:-.01em}
+h2{font-size:.8rem;font-weight:600;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.panel{background:transparent;border:0;border-radius:0;padding:0;gap:16px}
+input,textarea,select{border:1px solid transparent;background:var(--bg);border-radius:12px;padding:12px 14px}
+input:focus,textarea:focus,select:focus{border-color:var(--fg);outline:none}
+button{border:0;border-radius:999px;padding:14px 22px}
+button.ghost{border:1px solid var(--line);color:var(--fg)}
+#save,#p-save{width:100%}
+.brand svg{width:28px;height:28px}
+.wrap.app .sub{display:none}
+.bp{display:flex;align-items:center;justify-content:center;gap:6px}
+.bp input{font:600 3rem/1 var(--display);text-align:center;width:5.2ch;padding:16px 6px;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.bp input::placeholder{color:var(--line)}
+.bp .slash{font:200 3rem/1 var(--display);color:var(--muted)}
+.tri{display:flex;flex-direction:column;gap:8px}
+.tri-row{display:grid;grid-template-columns:1.4rem 1fr .7rem 1fr 1fr;align-items:center;gap:6px}
+.tri-row input{font:600 1.5rem/1 var(--display);text-align:center;padding:10px 4px;min-width:0;width:100%;font-variant-numeric:tabular-nums}
+.tri-row input::placeholder{color:var(--line)}
+.tri-row .r-p{font-size:1.1rem;font-weight:500}
+.tri-row .slash{font:200 1.6rem/1 var(--display);color:var(--muted);text-align:center}
+.tri-n{font-size:.8rem;color:var(--muted);text-align:center}
+.tri-head{font-size:.75rem;color:var(--muted);text-align:center}
+.avg{display:flex;flex-direction:column;align-items:center;gap:2px;padding:14px;border-radius:16px;background:var(--bg)}
+.avg span{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+.avg b{font:600 2.6rem/1.05 var(--display);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.avg small{font-size:.8rem;color:var(--muted)}
+.prep{border:1px solid var(--line);border-radius:16px;padding:12px 14px}
+.prep summary{font-weight:600;cursor:pointer}
+.prep summary span{font-weight:400;color:var(--muted);font-size:.85rem;margin-left:6px}
+.prep ol{margin:10px 0 6px;padding-left:1.2rem;display:flex;flex-direction:column;gap:6px;font-size:.92rem}
+.when summary{font:500 .95rem var(--body);color:var(--muted);list-style:none;text-align:center}
+.when summary::-webkit-details-marker{display:none}
+.when[open] summary{margin-bottom:12px}
+.hero{display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 0 4px;text-align:center}
+.hero .big{font:600 3.6rem/1 var(--display);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.hero .big small{font-size:1rem;font-weight:500;color:var(--muted);letter-spacing:0}
+.hero .cat{display:inline-flex;align-items:center;gap:8px;font-weight:700;color:var(--c);font-size:.95rem}
+.hero .when-l{font-size:.85rem;color:var(--muted)}
+.pname{font-size:1.1rem;font-weight:600}
+.tile{background:var(--bg);border:0;border-radius:16px;padding:18px}
+.tile.add{background:transparent;border:1px dashed var(--line);color:var(--fg)}
+.result{border-left:0;border-radius:16px;padding:16px 18px}
+.result .call a{border-radius:999px}
+.item{border-left:0;background:transparent;border-radius:0;border-bottom:1px solid var(--line);padding:12px 0}
+.item .lab{font-weight:500}
+.day h3{margin-top:16px}
+.aid{border:0;border-radius:16px;background:var(--bg);padding:14px 16px}
+.aid[open]{background:var(--cb)}
+.warn{border:0;background:var(--surface);border-radius:12px}
+.call a{border-radius:999px}
+.tabs{background:var(--bg);border-radius:999px;padding:4px;display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.tabs button{border:0;border-radius:999px;color:var(--muted)}
+.tabs button[aria-selected="true"]{background:var(--surface);color:var(--fg);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.tabbar{border-top:1px solid var(--line)}
+.tabbar button{font-weight:500}
+.tabbar button[aria-current="page"]{color:var(--fg);font-weight:700}
+.tabbar button.aidtab{color:var(--brand)}
+.meds{border:0;background:var(--surface);border-radius:12px}
+.legend{font-size:.8rem}
+.signed{display:none}
+.callrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:8px}
+.cc{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;font-size:.82rem;color:var(--muted)}
+.cc select{width:auto;max-width:60%;padding:6px 10px;font-size:.85rem;border-radius:999px}
+.cc-note{text-align:center;margin:4px 0 0}
+.terms{display:flex;flex-direction:column;gap:10px;font-size:.92rem}
+.terms ul{margin:0;padding-left:1.1rem;display:flex;flex-direction:column;gap:6px}
+.terms .chk{display:flex;gap:10px;align-items:flex-start;font-weight:500}
+.terms .chk input{width:20px;height:20px;flex:none;margin-top:2px}
+.legal{font-size:.88rem}
+.legal h4{margin:14px 0 4px;font-size:.92rem}
+.legal ul{padding-left:1.1rem;display:flex;flex-direction:column;gap:6px}
+.cbtn{display:flex;flex-direction:column;gap:2px;padding:12px;border-radius:16px;background:var(--bg);color:var(--fg);text-decoration:none;min-width:0}
+.cbtn b{font:700 1.35rem/1.1 var(--display);font-variant-numeric:tabular-nums}
+.cbtn span{font-size:.75rem;color:var(--muted);line-height:1.3}
+.cbtn.sos{background:var(--crisis);color:var(--surface)}
+.cbtn.sos span{color:var(--surface);opacity:.85}
+.cbtn:focus-visible{outline:3px solid var(--fg);outline-offset:2px}
+/* Move, exercises, timer, help */
+.week{display:flex;align-items:center;gap:16px;padding:4px 0}
+.ring{width:84px;height:84px;flex:none;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:8}
+.ring-bg{stroke:var(--bg)}
+.ring-fg{stroke:var(--brand);stroke-linecap:round;stroke-dasharray:201;stroke-dashoffset:201;transition:stroke-dashoffset .6s ease}
+.week-txt{display:flex;flex-direction:column}
+.week-txt b{font:700 2rem/1 var(--display);font-variant-numeric:tabular-nums}
+.week-txt span{color:var(--muted);font-size:.9rem}
+.quicklog summary,.faq summary{font:600 1rem var(--display);padding:12px 0}
+.quicklog[open]{display:flex;flex-direction:column;gap:12px}
+.banner{border-radius:14px;padding:12px 14px;background:var(--crisis-bg);color:var(--fg);font-size:.95rem}
+.banner.soft{background:var(--bg)}
+h3.sec{font:600 .8rem var(--display);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:8px}
+.ex-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.ex-card{display:flex;flex-direction:column;gap:6px;text-align:left;padding:0;border:0;background:transparent;color:var(--fg);border-radius:16px;font-weight:400}
+.pic,.pics figure{background:linear-gradient(#08090b 55%,#16181d);border-radius:16px;overflow:hidden;margin:0;position:relative}
+.pic{aspect-ratio:1}
+.pic img,.pics img{width:100%;height:100%;object-fit:contain;display:block}
+.pics{display:grid;gap:8px;grid-template-columns:repeat(2,1fr)}
+.pics.n1{grid-template-columns:1fr}
+.pics figure{aspect-ratio:3/4;border-radius:20px}
+.pics.n1 figure{aspect-ratio:3/2}
+.pics figcaption{position:absolute;left:10px;bottom:10px;font-size:.72rem;font-weight:600;color:#fff;background:rgba(255,255,255,.14);padding:3px 9px;border-radius:99px}
+.ex-card b{font:600 1rem/1.25 var(--display)}
+.ex-card span{font-size:.8rem;color:var(--muted)}
+.ex-card:hover .pic{outline:2px solid var(--line)}
+.ill{width:100%;height:auto;display:block}
+.ill *{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.ill .bgc{fill:var(--surface);stroke:none;opacity:.7}
+.ill .gl{stroke:var(--line);stroke-width:2}
+.ill .b{stroke:var(--fg);stroke-width:5}
+.ill .w{stroke:var(--fg);stroke-width:3.5}
+.ill .wl{stroke:var(--muted);stroke-width:3}
+.ill .g{stroke:var(--line);stroke-width:5}
+.ill .h{fill:var(--fg);stroke:none}
+.ill .gh{fill:var(--line);stroke:none}
+.ill .a{stroke:var(--brand);stroke-width:3}
+.ill .af{fill:var(--brand);stroke:none}
+.ill text{fill:var(--brand);stroke:none;font:700 14px var(--display)}
+.kicker{font:600 .75rem var(--display);letter-spacing:.08em;text-transform:uppercase;color:var(--brand)}
+.ex-title{font-size:1.6rem;color:var(--fg);letter-spacing:-.01em;text-transform:none}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips span{background:var(--bg);border-radius:999px;padding:6px 12px;font-size:.85rem}
+.back{align-self:flex-start}
+.steps{margin:0;padding-left:1.3rem;display:flex;flex-direction:column;gap:8px}
+.timer{display:flex;flex-direction:column;align-items:center;gap:6px;padding:20px 16px;border-radius:20px;background:var(--bg);text-align:center}
+.t-label{font:600 .9rem var(--display);color:var(--brand);letter-spacing:.04em;text-transform:uppercase}
+.t-clock{font:600 3.4rem/1 var(--display);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.t-sub{color:var(--muted);font-size:.9rem;min-height:1.3em}
+.t-bar{width:100%;height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.t-bar i{display:block;height:100%;width:0;background:var(--brand);transition:width .9s linear}
+.t-ctrl{justify-content:center;margin-top:6px}
+.breath{width:150px;height:150px;display:grid;place-items:center}
+.breath-dot{width:60px;height:60px;border-radius:50%;background:var(--brand);opacity:.85;transition:transform 5s ease-in-out}
+.habits{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.habit{background:var(--bg);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:6px}
+.habit h4{margin:0;font:600 1rem var(--display)}
+.habit p{margin:0;font-size:.92rem}
+.habit a,.note a,#ex-link a{color:var(--fg);font-weight:700;font-size:.88rem}
+.faq{display:flex;flex-direction:column}
+.faq details{border-bottom:1px solid var(--line)}
+.faq details>*:not(summary){margin:0 0 14px}
+.faq ul{padding-left:1.2rem;display:flex;flex-direction:column;gap:4px}
+.helpbtn{border:1px solid var(--line);background:transparent;color:var(--fg);width:40px;height:40px;padding:0;border-radius:50%;font:700 1rem var(--display)}
+@media (max-width:420px){.ex-grid{gap:10px}.t-clock{font-size:3rem}}
+@media (max-width:420px){.grid3{grid-template-columns:repeat(2,minmax(0,1fr))}.item{grid-template-columns:auto 2.8rem minmax(0,1fr)}.item .del{grid-column:1/-1;justify-self:end}}
+</style>
+
+<div class="wrap">
+  <header class="row between">
+    <div>
+      <div class="brand"><svg viewBox="0 0 34 34" aria-hidden="true"><path d="M17 30C8 23 3 18 3 11.5 3 7.4 6.2 4 10.2 4c2.8 0 5.2 1.6 6.8 4 1.6-2.4 4-4 6.8-4C27.8 4 31 7.4 31 11.5 31 18 26 23 17 30z" fill="var(--brand)"/><path d="M6 16h6l2-4 3 8 2-5 1.5 1H28" fill="none" stroke="var(--surface)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><h1>Heartbeat</h1></div>
+      <p class="sub" id="tagline">Your family's blood pressure, with help when a reading is too high or too low.</p>
+    </div>
+    <div class="signed" id="signed" hidden></div>
+    <button type="button" class="helpbtn" id="help-btn" aria-label="Help" hidden>?</button>
+  </header>
+
+  <!-- start screen -->
+  <section class="panel" id="intro" aria-labelledby="intro-h" hidden>
+    <h2 id="intro-h">Who is using the log?</h2>
+    <p class="note" id="intro-note">You are signed in with your Claude account. Pick a person, or create a profile.</p>
+    <div class="terms" id="terms" hidden>
+      <p><b>Before you start</b></p>
+      <ul>
+        <li>Heartbeat helps you record blood pressure. It is general information, not medical advice, and does not replace your doctor.</li>
+        <li>In an emergency, call your local emergency number straight away.</li>
+        <li>Your data stays in the app. It is not sent to us or anyone else.</li>
+      </ul>
+      <details class="legal-host" id="intro-legal"><summary>Read the full terms and privacy notice</summary></details>
+      <label class="chk"><input type="checkbox" id="terms-ok"> I have read and accept the terms of use and privacy notice.</label>
+      <button type="button" id="terms-go" disabled>Continue</button>
+    </div>
+    <div class="tiles" id="tiles"></div>
+  </section>
+
+  <!-- compact current person -->
+  <section class="panel" id="current" hidden>
+    <div class="row between">
+      <div><div class="pname" id="cur-name"></div><div class="note" id="cur-meta"></div></div>
+      <button type="button" class="ghost small" id="switch">Switch person</button>
+    </div>
+    <div class="hero" id="hero" hidden></div>
+    <details id="cur-details">
+      <summary>Health details</summary>
+      <div class="who" id="who"></div>
+      <div class="row" style="padding-top:10px"><button type="button" class="ghost small" id="edit-person">Edit details</button></div>
+    </details>
+    <p class="note" id="who-note" hidden></p>
+  </section>
+
+  <!-- one-tap calls -->
+  <section class="panel" id="calls" aria-label="Call for help" hidden>
+    <div class="callrow">
+      <a class="cbtn sos ecall" href="tel:112" target="_blank" rel="noopener"><b>112</b><span>Emergency, acute help</span></a>
+      <a class="cbtn dk-only" href="tel:1813" target="_blank" rel="noopener"><b>1813</b><span>Medical advice when your doctor is closed</span></a>
+      <a class="cbtn" id="call-doc" href="#" target="_blank" rel="noopener" hidden><b>Doctor</b><span id="call-doc-n"></span></a>
+    </div>
+    <label class="cc"><span>Emergency number for</span><select id="cc-sel" aria-label="Country for emergency numbers"></select></label>
+    <p class="note cc-note" id="cc-note" hidden></p>
+  </section>
+
+  <form class="panel" id="pform" novalidate hidden>
+    <h2 id="pform-h">Create a profile</h2>
+    <fieldset>
+      <div class="grid">
+        <label for="p-name">Name<input type="text" id="p-name" maxlength="60" required></label>
+        <label for="p-rel">Relation to you<select id="p-rel">
+          <option value="me">Me</option><option value="father">Father</option><option value="mother">Mother</option>
+          <option value="guardian">Guardian</option><option value="child">Child</option><option value="partner">Partner</option><option value="other">Other family</option>
+        </select></label>
+      </div>
+      <div class="grid">
+        <label for="p-birth">Birth date<input type="date" id="p-birth" required></label>
+        <label for="p-sex">Sex <small>optional</small><select id="p-sex"><option value="">Prefer not to say</option><option value="female">Female</option><option value="male">Male</option></select></label>
+      </div>
+      <div class="grid">
+        <label for="p-height">Height <small>cm</small><input type="number" id="p-height" inputmode="decimal" min="40" max="250"></label>
+        <label for="p-weight">Weight <small>kg</small><input type="number" id="p-weight" inputmode="decimal" min="2" max="350" step="0.1"></label>
+      </div>
+      <div class="grid">
+        <label for="p-tsys">Doctor's target, top <small>optional, e.g. 130</small><input type="number" id="p-tsys" inputmode="numeric" min="80" max="200"></label>
+        <label for="p-tdia">Doctor's target, bottom <small>optional, e.g. 80</small><input type="number" id="p-tdia" inputmode="numeric" min="40" max="130"></label>
+      </div>
+      <label for="p-dphone">Doctor's phone <small>optional, your GP or clinic</small><input type="tel" id="p-dphone" maxlength="30"></label>
+      <label for="p-preg" id="p-preg-wrap" style="flex-direction:row;align-items:center;gap:10px;font-weight:400" hidden><input type="checkbox" id="p-preg" style="width:auto"> Currently pregnant <small>lower emergency threshold, 160/110</small></label>
+      <label for="p-cond">Health conditions <small>e.g. diabetes, kidney disease, heart condition</small><textarea id="p-cond" maxlength="500"></textarea></label>
+      <label for="p-meds">Medicines <small>name and dose, if any. Shown to helpers in an emergency.</small><textarea id="p-meds" maxlength="500"></textarea></label>
+      <label for="p-guard" id="p-guard-wrap" hidden>Guardians <small>names of parents or guardians who look after these records</small><input type="text" id="p-guard" maxlength="120"></label>
+      <p class="note" id="p-childnote" hidden>Under 18, so this person is saved as a child. Their records are shared with every family member you share this log with, so both parents or guardians can follow them.</p>
+    </fieldset>
+    <div class="row"><button type="submit" id="p-save">Save profile</button><button type="button" class="ghost" id="p-cancel">Cancel</button><button type="button" class="ghost" id="p-del" hidden>Remove person</button><span class="status" id="p-status" role="status"></span></div>
+  </form>
+
+  <form class="panel" id="entry" novalidate hidden>
+    <h2 id="entry-h">New reading</h2>
+    <details class="prep">
+      <summary>Before you measure <span>7 tips for a true reading</span></summary>
+      <ol>
+        <li><b>30 minutes before:</b> no coffee, tea, energy drinks, smoking, alcohol or exercise.</li>
+        <li><b>Empty your bladder</b> first. A full bladder raises the reading.</li>
+        <li><b>Sit and rest 5 minutes</b> in a quiet place. Back supported, feet flat on the floor, legs uncrossed.</li>
+        <li><b>Arm straight and relaxed</b> on a table, palm up, with the cuff at heart level.</li>
+        <li><b>Cuff on bare skin</b>, its lower edge 2–3 cm above the elbow crease. Use a cuff that fits your arm.</li>
+        <li><b>Stay still and calm.</b> Don't talk, move or use your phone while it measures.</li>
+        <li><b>Take 2–3 readings, 1 minute apart</b>, at the same times each day: morning before medicine and breakfast, and evening before dinner.</li>
+      </ol>
+      <p class="note">Sources: <a href="https://www.heart.org/-/media/GRFW-Files/Know-Your-Risk/measuring-your-blood-pressure-at-home-English.pdf" target="_blank" rel="noopener">American Heart Association</a> · <a href="https://hjerteforeningen.dk/wp-content/uploads/2026/02/HF_Folder_Blodtryk_M65.pdf" target="_blank" rel="noopener">Hjerteforeningen</a> · ESH 2023 guideline</p>
+    </details>
+    <div class="tri" id="tri">
+      <div class="tri-row tri-head" aria-hidden="true"><span class="tri-n"></span><span>Top</span><span class="slash"></span><span>Bottom</span><span>Pulse</span></div>
+      <div class="tri-row"><span class="tri-n">1</span><input type="number" class="r-s" inputmode="numeric" min="50" max="300" placeholder="120" aria-label="Reading 1, top number, mmHg"><span class="slash" aria-hidden="true">/</span><input type="number" class="r-d" inputmode="numeric" min="30" max="200" placeholder="80" aria-label="Reading 1, bottom number, mmHg"><input type="number" class="r-p" inputmode="numeric" min="20" max="250" placeholder="70" aria-label="Reading 1, pulse, optional"></div>
+      <div class="tri-row"><span class="tri-n">2</span><input type="number" class="r-s" inputmode="numeric" min="50" max="300" placeholder="120" aria-label="Reading 2, top number, mmHg"><span class="slash" aria-hidden="true">/</span><input type="number" class="r-d" inputmode="numeric" min="30" max="200" placeholder="80" aria-label="Reading 2, bottom number, mmHg"><input type="number" class="r-p" inputmode="numeric" min="20" max="250" placeholder="70" aria-label="Reading 2, pulse, optional"></div>
+      <div class="tri-row"><span class="tri-n">3</span><input type="number" class="r-s" inputmode="numeric" min="50" max="300" placeholder="120" aria-label="Reading 3, top number, mmHg"><span class="slash" aria-hidden="true">/</span><input type="number" class="r-d" inputmode="numeric" min="30" max="200" placeholder="80" aria-label="Reading 3, bottom number, mmHg"><input type="number" class="r-p" inputmode="numeric" min="20" max="250" placeholder="70" aria-label="Reading 3, pulse, optional"></div>
+    </div>
+    <div class="avg" id="avg" aria-live="polite"><span>Average</span><b id="avg-v">–/–</b><small id="avg-n">Take 2–3 readings, 1 minute apart</small></div>
+    <label for="f-note">Note <small>optional</small><input type="text" id="f-note" maxlength="200" placeholder="e.g. felt dizzy"></label>
+    <details class="when" id="when">
+      <summary id="when-sum">Now</summary>
+      <div class="grid">
+        <label for="f-date">Date<input type="date" id="f-date" required></label>
+        <label for="f-time">Time<input type="time" id="f-time" required></label>
+      </div>
+    </details>
+    <div class="row"><button type="submit" id="save">Save reading</button><span class="status" id="status" role="status"></span></div>
+    <div id="result" hidden></div>
+  </form>
+
+  <!-- first aid guide -->
+  <section class="panel" id="guide" aria-labelledby="guide-h" hidden>
+    <div class="row between"><h2 id="guide-h">What to do: first aid</h2><span class="note">Emergency in <span class="cc-name">Denmark</span>: <strong>112</strong></span></div>
+    <div class="tabs" role="tablist" aria-label="Who is reading">
+      <button type="button" role="tab" id="tab-self" aria-selected="true">It's me</button>
+      <button type="button" role="tab" id="tab-help" aria-selected="false">I'm helping someone</button>
+    </div>
+
+    <details class="aid c-crisis" id="aid-crisis">
+      <summary>Very high: above 180/120</summary>
+      <div class="body">
+        <div class="warn">
+          <h3>Call 112 now if there is any of these</h3>
+          <ul>
+            <li>Chest pain, pressure or tightness</li>
+            <li>Shortness of breath</li>
+            <li>Face drooping, or weakness or numbness in an arm or leg, especially on one side</li>
+            <li>Slurred speech, trouble speaking or understanding, or sudden confusion</li>
+            <li>Sudden severe headache, or sudden loss of vision</li>
+            <li>Severe back or belly pain</li>
+            <li>Fainting or a seizure</li>
+          </ul>
+          <div class="call"><a class="ecall" href="tel:112" target="_blank" rel="noopener">Call 112</a><span class="note">If the button does nothing, dial 112 on your phone.</span></div>
+        </div>
+        <div data-for="self">
+          <h3>If you have none of these signs</h3>
+          <ol>
+            <li>Sit down with your back supported and both feet on the floor.</li>
+            <li>Rest for 5 minutes. Breathe slowly: in for 4 seconds, out for 6 seconds.</li>
+            <li>Measure again on the same arm.</li>
+            <li>If it is still above 180/120, call your doctor now. When your doctor is closed, call the after-hours doctor service<span class="dk-only"> (1813 in the Capital Region, lægevagten in other regions)</span>. If you can't reach anyone, call 112.</li>
+            <li>Take your usual blood pressure medicine only if a dose is due, exactly as prescribed. Do not take extra doses or anyone else's medicine.</li>
+          </ol>
+          <h3>While you wait for help</h3>
+          <ul>
+            <li>Stay sitting upright and keep still. Do not drive yourself.</li>
+            <li>Unlock the front door and keep your phone with you.</li>
+            <li>Do not eat, smoke, or drink coffee or alcohol.</li>
+            <li>Take aspirin only if the 112 dispatcher tells you to, for example for chest pain that may be a heart attack. Never take it for possible stroke signs unless told to.</li>
+            <li>Show the ambulance crew your readings and medicine list below.</li>
+          </ul>
+        </div>
+        <div data-for="help" hidden>
+          <h3>Step by step for a helper</h3>
+          <ol>
+            <li>If any warning sign above is present, call 112. Put the phone on speaker and follow the dispatcher.</li>
+            <li>Help the person sit comfortably, upright or half sitting. Loosen tight clothing. Stay with them and keep them calm.</li>
+            <li>Check for stroke with FAST: Face drooping, Arm weakness, Speech difficulty, Time. Note the time the symptoms started and tell the crew.</li>
+            <li>Do not give food, drink or medicine unless the dispatcher says so.</li>
+            <li>If they become unresponsive but breathe normally, roll them onto their side in the recovery position. Keep checking their breathing.</li>
+            <li>If they are not breathing normally, start CPR and follow the dispatcher's instructions: push hard and fast in the centre of the chest, 5–6 cm deep, 100–120 times a minute. Ask someone to fetch a defibrillator (hjertestarter). The dispatcher can tell you where the nearest one is.</li>
+            <li>Give the ambulance crew the readings and medicine list from this log.</li>
+          </ol>
+        </div>
+        <div class="meds-box"></div>
+      </div>
+    </details>
+
+    <details class="aid c-s2" id="aid-high">
+      <summary>High: 140/90 or above, with no warning signs</summary>
+      <div class="body">
+        <p>If you are pregnant, a reading of 160/110 or above counts as very high: follow the section above. Otherwise, there is no safe way to bring blood pressure down quickly at home, and a fast drop can itself be harmful. The aim is to rest, check again and involve the doctor.</p>
+        <div data-for="self">
+          <ol>
+            <li>Sit quietly for 5 minutes, then take two readings one minute apart.</li>
+            <li>For the rest of the day, avoid coffee, smoking, alcohol, salty food and hard exercise.</li>
+            <li>Keep taking your regular medicines as prescribed. Don't skip doses.</li>
+            <li>If readings stay at 140/90 or above over several days, book an appointment with your doctor.</li>
+            <li>If any warning sign from the very high section appears, call 112.</li>
+          </ol>
+        </div>
+        <div data-for="help" hidden>
+          <ol>
+            <li>Help them sit and rest quietly for 5 minutes, then measure again.</li>
+            <li>Ask about chest pain, breathing, headache, vision, weakness and speech. Any of these means calling 112.</li>
+            <li>Offer water, not coffee or alcohol.</li>
+            <li>Encourage them to contact their doctor if readings stay high.</li>
+          </ol>
+        </div>
+        <h3>For an accurate reading</h3>
+        <ul>
+          <li>No coffee, smoking or exercise for 30 minutes before. Empty your bladder first.</li>
+          <li>Sit with your back supported, feet flat and your arm resting at heart height.</li>
+          <li>Don't talk while measuring. Use the same arm each time.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="aid c-low" id="aid-low">
+      <summary>Low: below 90/60, dizziness or fainting</summary>
+      <div class="body">
+        <div class="warn">
+          <h3>Call 112 if there is any of these</h3>
+          <ul>
+            <li>Fainted and does not wake up within a minute</li>
+            <li>Chest pain, a racing or irregular heartbeat, or shortness of breath</li>
+            <li>Confusion, or pale, cold and clammy skin with a fast weak pulse</li>
+            <li>Heavy bleeding, black stools or vomiting blood</li>
+            <li>A low reading after a fall or injury</li>
+          </ul>
+          <div class="call"><a class="ecall" href="tel:112" target="_blank" rel="noopener">Call 112</a><span class="note">If the button does nothing, dial 112 on your phone.</span></div>
+        </div>
+        <div data-for="self">
+          <ol>
+            <li>Lie down straight away and raise your legs about 30 cm on a chair or cushions. If you can't lie down, sit and put your head between your knees.</li>
+            <li>Stay down until the dizziness passes. Then sit for a minute before standing up slowly.</li>
+            <li>When you feel fully alert, drink one or two glasses of water.</li>
+            <li>If you have diabetes, check your blood sugar if you can. If it is low, or you feel shaky and sweaty, take fast sugar such as juice or glucose tablets.</li>
+            <li>Measure again after 10 to 15 minutes.</li>
+            <li>Tell your doctor if low readings with dizziness happen again, especially after starting a new medicine.</li>
+          </ol>
+        </div>
+        <div data-for="help" hidden>
+          <ol>
+            <li>Help them lie down and raise their legs about 30 cm. Loosen tight clothing and let in fresh air.</li>
+            <li>If they faint, check breathing. If they are breathing, roll them onto their side in the recovery position and call 112 if they don't wake within a minute.</li>
+            <li>If they are not breathing normally, call 112, start CPR and send for a defibrillator.</li>
+            <li>Give nothing to eat or drink until they are fully awake and can swallow.</li>
+            <li>Don't let them stand up quickly. Stay with them. If they fell and may have hurt their head, neck or back, don't move them unless you have to.</li>
+          </ol>
+        </div>
+        <div class="meds-box"></div>
+      </div>
+    </details>
+
+    <p class="note">Checked against the AHA/ACC 2025 blood pressure guideline, the 2025 European first aid guidelines and Region Hovedstaden's 1813 guidance. It does not replace advice from a doctor or the 112 dispatcher.</p>
+  </section>
+
+  <!-- Move: exercise and habits -->
+  <section class="panel" id="move" aria-labelledby="move-h" hidden>
+    <h2 id="move-h">Move</h2>
+    <div class="week">
+      <svg viewBox="0 0 80 80" class="ring" aria-hidden="true"><circle cx="40" cy="40" r="32" class="ring-bg"/><circle cx="40" cy="40" r="32" class="ring-fg" id="ring-fg"/></svg>
+      <div class="week-txt"><b id="week-min">0</b><span id="week-goal">of 150 active minutes this week</span></div>
+    </div>
+    <details class="quicklog" id="quicklog">
+      <summary>Log activity</summary>
+      <div class="grid">
+        <label for="q-kind">Activity<select id="q-kind"></select></label>
+        <label for="q-min">Minutes<input type="number" id="q-min" inputmode="numeric" min="1" max="600" placeholder="30"></label>
+      </div>
+      <div class="row"><button type="button" id="q-save">Save activity</button><span class="status" id="q-status" role="status"></span></div>
+    </details>
+    <div class="banner" id="move-warn" hidden></div>
+    <div class="banner soft" id="move-diab" hidden>With diabetes: check your blood sugar before and after exercise while you are starting out, and carry something sweet such as juice or glucose tablets.</div>
+
+    <h3 class="sec">Exercises</h3>
+    <div class="ex-grid" id="ex-grid"></div>
+
+    <h3 class="sec">Everyday habits</h3>
+    <div class="habits">
+      <article class="habit"><h4>Less salt</h4><p>Aim for under 5 g a day, about one teaspoon. Most salt hides in bread, cheese, cold cuts and ready meals, so check labels.</p><a href="https://www.who.int/news-room/fact-sheets/detail/salt-reduction" target="_blank" rel="noopener">WHO on salt</a></article>
+      <article class="habit"><h4>Eat for your heart</h4><p>Fill half the plate with vegetables. Choose whole grains, fish, beans, nuts and low-fat dairy. This is the DASH eating style, shown to lower blood pressure.</p><a href="https://www.nhlbi.nih.gov/education-campaigns/lower-your-blood-pressure-with-dash" target="_blank" rel="noopener">About the DASH diet</a></article>
+      <article class="habit"><h4>Alcohol</h4><p>The Danish Health Authority advises at most 10 units a week and no more than 4 on any one day. Less is better for blood pressure.</p><a href="https://www.sst.dk/da/viden/alkohol" target="_blank" rel="noopener">Sundhedsstyrelsen on alcohol</a></article>
+      <article class="habit"><h4>Stop smoking</h4><p>Each cigarette raises blood pressure for a while and damages blood vessels. <span class="dk-only">Free help in Denmark: Stoplinien, 80 31 31 31.</span></p><a href="https://www.stoplinien.dk" target="_blank" rel="noopener">stoplinien.dk</a></article>
+      <article class="habit"><h4>Sleep</h4><p>Most adults need 7 to 9 hours. Loud snoring with pauses in breathing can be sleep apnoea, which raises blood pressure. Mention it to your doctor.</p></article>
+      <article class="habit"><h4>Healthy weight</h4><p>If you are overweight, losing even a few kilos lowers blood pressure, roughly 1 mmHg for each kilo lost.</p></article>
+      <article class="habit"><h4>Calm the mind</h4><p>Stress raises blood pressure. A few minutes of slow breathing, a walk outside or time with friends helps.</p></article>
+      <article class="habit"><h4>Measure at home</h4><p>Measure at the same times each day, for example morning and evening, and bring the export to your doctor.</p></article>
+    </div>
+    <p class="note">More from trusted sources: <a href="https://hjerteforeningen.dk" target="_blank" rel="noopener">Hjerteforeningen</a> · <a href="https://www.heart.org/en/healthy-living/fitness" target="_blank" rel="noopener">American Heart Association</a> · <a href="https://www.sundhed.dk" target="_blank" rel="noopener">sundhed.dk</a> · Illustrations: <a href="https://github.com/hitmanrepo/open-exercise-illustrations" target="_blank" rel="noopener">Open Exercise Illustrations</a> (CC0)</p>
+    <p class="note"><strong>Before you start:</strong> check with your doctor if you have a heart condition, diabetes or have not been active for a long time. Don't exercise if your blood pressure at rest is above 180/110. Stop at once and rest if you get chest pain, dizziness, unusual shortness of breath or an irregular heartbeat, and call 112 if it doesn't pass.</p>
+  </section>
+
+  <!-- exercise detail -->
+  <section class="panel" id="exdetail" hidden>
+    <button type="button" class="ghost small back" id="ex-back">‹ All exercises</button>
+    <div class="ex-hero" id="ex-ill"></div>
+    <div><span class="kicker" id="ex-kind"></span><h2 class="ex-title" id="ex-title"></h2></div>
+    <div class="chips" id="ex-chips"></div>
+    <p id="ex-why"></p>
+    <div class="timer" id="timer">
+      <div class="breath" id="breath" hidden><div class="breath-dot" id="breath-dot"></div></div>
+      <div class="t-label" id="t-label">Ready</div>
+      <div class="t-clock" id="t-clock">0:00</div>
+      <div class="t-sub" id="t-sub"></div>
+      <div class="t-bar"><i id="t-bar"></i></div>
+      <div class="row t-ctrl"><button type="button" id="t-go">Start</button><button type="button" class="ghost" id="t-reset">Reset</button><button type="button" class="ghost" id="t-log" hidden>Log minutes</button></div>
+      <span class="status" id="t-status" role="status"></span>
+    </div>
+    <h3 class="sec">How to do it</h3>
+    <ol class="steps" id="ex-steps"></ol>
+    <div class="banner soft" id="ex-safety"></div>
+    <p class="note" id="ex-link"></p>
+  </section>
+
+  <!-- help -->
+  <section class="panel" id="help" aria-labelledby="help-h" hidden>
+    <h2 id="help-h">Help</h2>
+    <div class="faq">
+      <details><summary>Getting started</summary><p>Open Heartbeat and pick your name on the start screen, or tap <b>Create profile</b>. Fill in name and birth date. Everything else is optional but makes the advice more personal. Use <b>Switch person</b> to change between family members.</p></details>
+      <details><summary>Put Heartbeat on your iPhone home screen</summary><p>Open the link in Safari, tap the Share button (square with an arrow), then <b>Add to Home Screen</b>. On Android, open the browser menu and choose <b>Add to Home screen</b>.</p></details>
+      <details><summary>How to measure blood pressure correctly</summary><ul><li>No coffee, smoking or exercise for 30 minutes before. Empty your bladder.</li><li>Sit for 5 minutes with your back supported and feet flat on the floor.</li><li>Rest your arm on a table with the cuff at heart height, on bare skin.</li><li>Don't talk. Take two readings one minute apart and log both.</li><li>Measure at the same times each day, for example morning and evening.</li></ul></details>
+      <details><summary>Adding a reading</summary><p>On the <b>Add</b> tab, type the top number (systolic) and the bottom number (diastolic). Pulse and a note are optional. Date and time are set to now. Tap the time line to change them. Tap <b>Save reading</b> and the result appears at once with its colour.</p></details>
+      <details><summary>What the colours mean</summary><ul><li><b>Normal</b>: below 120/80.</li><li><b>Elevated</b>: top 120–129, bottom below 80.</li><li><b>High, stage 1</b>: top 130–139 or bottom 80–89.</li><li><b>High, stage 2</b>: 140/90 or above.</li><li><b>Hypertensive crisis</b>: above 180/120, or 160/110 or above in pregnancy. Follow the first aid steps.</li><li><b>Low</b>: below 90/60. Only a concern if you feel dizzy or faint.</li><li>Children under 13 are not colour-coded, because their normal range depends on age, sex and height.</li></ul><p class="note">Based on the AHA/ACC 2025 blood pressure guideline.</p></details>
+      <details><summary>Your doctor's target</summary><p>Your doctor may give you a personal target, for example 130/80. Add it under <b>Profile</b> then <b>Edit details</b>. Readings above it are marked "above target".</p></details>
+      <details><summary>Calling for help</summary><ul><li><b>112</b>: emergencies, for example chest pain, trouble breathing, stroke signs, or someone who has fainted and doesn't wake.</li><li class="dk-only"><b>1813</b>: medical advice when your own doctor is closed, after 16:00 on weekdays and at weekends (Capital Region).</li><li><b>Your country</b>: the app picks the emergency number from your phone's region setting. If it is wrong, choose your country under the call buttons. Numbers come from <a href="https://en.wikipedia.org/wiki/List_of_emergency_telephone_numbers" target="_blank" rel="noopener">Wikipedia's list of emergency numbers</a> (CC BY-SA 4.0). Check your local number before you need it.</li><li><b>Doctor</b>: appears when you add your doctor's phone number to your profile.</li></ul><p>Tap a button to open your phone's dialer. If nothing happens, dial the number shown.</p></details>
+      <details><summary>First aid</summary><p>The <b>First aid</b> tab has steps for very high, high and low blood pressure. Switch between <b>It's me</b> and <b>I'm helping someone</b>. Your medicine list and last reading are shown so you can show them to the ambulance crew.</p></details>
+      <details><summary>Exercise and activity</summary><p>The <b>Move</b> tab shows exercises that help blood pressure and the heart, each with an illustration, steps and a guided timer. When you finish, tap <b>Log minutes</b>, or use <b>Log activity</b> for a walk or a bike ride. The ring shows your active minutes this week. Adults should aim for 150 minutes a week. Children aim for 60 minutes a day.</p></details>
+      <details><summary>Family, children and guardians</summary><p>Each family member signs in with their own Claude account and has their own private profile. Anyone under 18 is saved as a child. Children's records are shared with everyone you share Heartbeat with, so both parents or guardians can follow them. To share, use the <b>Share</b> menu and give the person <b>Contributor</b> access.</p></details>
+      <details><summary>Importing and exporting readings</summary><p>Under <b>Profile</b>, open <b>Import past readings</b> and paste one reading per line, for example <code>20.11.2026 08:15 135/85 72</code>, or choose a .csv or .txt file. <b>Export readings</b> downloads a CSV file you can open in Excel or give to your doctor.</p></details>
+      <details><summary>Privacy and your data</summary><p>Your data stays in the app. In the standalone app it is saved only on your device. Inside Claude, adult profiles and readings are saved privately to your Claude account. Children's records are visible to everyone you share Heartbeat with. Nothing is sent to us or anyone else: no tracking, no ads. See <b>Terms of use, disclaimer and privacy</b> below for the details and your rights.</p></details>
+      <details><summary>Editing or removing a person</summary><p>Go to <b>Profile</b>, tap <b>Edit details</b>, change what you need and save. <b>Remove person</b> deletes the profile and all of its readings. It asks you to confirm first.</p></details>
+      <details class="legal-host" id="help-legal"><summary>Terms of use, disclaimer and privacy</summary><div id="legal-full" class="legal">
+        <h4>1. What Heartbeat is</h4>
+        <p>Heartbeat is a general wellness tool. It helps you and your family record blood pressure and pulse readings, see them over time, and find general information about measuring, healthy habits, exercise and first aid. The colour bands, first aid steps and exercises are general information based on published guidelines (American Heart Association 2025, European first aid guidelines 2025 and others named in the app).</p>
+        <h4>2. Not medical advice</h4>
+        <p>Heartbeat does not diagnose, treat, cure or prevent any disease, and it does not replace a doctor, nurse or other health professional. It gives no personal medical advice and does not recommend, change or stop any medicine. Never ignore professional advice, or delay seeking it, because of something in the app. Always follow your own doctor's advice, and the emergency dispatcher's instructions in an emergency.</p>
+        <h4>3. Emergencies</h4>
+        <p>If you think you or someone else is having a medical emergency, call your local emergency number straight away. Emergency numbers in the app come from public lists and may be out of date or wrong for where you are. Learn your local number before you need it. A call button may not work on every device, so be ready to dial the number yourself.</p>
+        <h4>4. Accuracy of readings</h4>
+        <p>The app only shows the numbers you type in. Their accuracy depends on your blood pressure monitor and on how you measure. Use a validated monitor and follow the "Before you measure" tips. Errors in typing, in your monitor, or in the app are possible.</p>
+        <h4>5. Children</h4>
+        <p>Profiles for people under 18 are created and managed by a parent or guardian, who is responsible for the data they enter. Readings for children under 13 are not colour-coded, because normal ranges depend on age, sex and height. Ask the child's doctor.</p>
+        <h4>6. Your data and privacy</h4>
+        <ul>
+          <li><b>What is stored:</b> the profile details you enter (name, birth date, and optionally sex, height, weight, conditions, medicines, your doctor's target and phone number), your readings and notes, your activity log, and your country choice. Health data is a special category of personal data under the EU General Data Protection Regulation (GDPR, Article 9). You choose to enter it, and you can delete it at any time.</li>
+          <li><b>Where it is stored:</b> in the standalone app, only on your own device, in this browser's storage. Inside Claude, in your own Claude account's private storage for this app. Records of children are visible to the family members you share the app with.</li>
+          <li><b>What we do not do:</b> the app does not send your data to us or to anyone else. There is no tracking, no analytics, no advertising, and your data is never sold or used outside the app.</li>
+          <li><b>Your rights:</b> you can see all your data in the app, export it under <b>Profile</b> then <b>Export</b>, correct it with <b>Edit details</b>, and delete it with <b>Remove person</b>, which also deletes that person's readings. You can also complain to your data protection authority (in Denmark, Datatilsynet).</li>
+          <li><b>Keeping it safe:</b> anyone who can unlock your phone or computer can open the app. Use a screen lock, and don't use Heartbeat on a shared or public device.</li>
+        </ul>
+        <h4>7. No warranty, limited liability</h4>
+        <p>Heartbeat is provided "as is", without any warranty that it is complete, accurate, available or error-free. To the extent the law allows, we are not liable for any loss or harm that comes from using the app or relying on its information. Nothing in these terms limits liability that cannot be limited by law, such as for death or personal injury caused by negligence, or your rights as a consumer.</p>
+        <h4>8. Content and credits</h4>
+        <p>Exercise illustrations: Open Exercise Illustrations (CC0). Emergency numbers: Wikipedia's list of emergency telephone numbers (CC BY-SA 4.0). Linked websites belong to their owners, and we are not responsible for their content.</p>
+        <h4>9. Changes and law</h4>
+        <p>We may update these terms. The app will ask you to accept important changes. These terms are governed by Danish law, without removing protection you have under the law of the country where you live.</p>
+        <p class="note">Version 1, 25 November 2026.</p>
+      </div></details>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="hist-h" id="hist" hidden>
+    <div class="row between"><h2 id="hist-h">History</h2><span class="note" id="count"></span></div>
+    <div class="legend" id="legend"></div>
+    <div id="history"></div>
+  </section>
+
+  <section class="panel" id="tools" hidden>
+    <button type="button" class="ghost" id="help-open">Help and how to use Heartbeat</button>
+    <details>
+      <summary>Import past readings</summary>
+      <p class="note">Readings are added to the person selected above. Paste one reading per line as date, time, top/bottom, and pulse if you have it. For example:<br><code>2026-11-20 08:15 135/85 72</code><br><code>20.11.2026, 21:30, 128/82</code></p>
+      <textarea id="imp-text" aria-label="Readings to import"></textarea>
+      <label for="imp-file" style="font-weight:400">Or choose a .csv or .txt file <input type="file" id="imp-file" accept=".csv,.txt,text/plain,text/csv" style="font-size:.9rem"></label>
+      <div class="row"><button type="button" id="imp-go">Import</button><span class="status" id="imp-status" role="status"></span></div>
+    </details>
+    <details>
+      <summary>Export readings</summary>
+      <p class="note">Download the selected person's readings as a CSV file you can open in Excel or Numbers, or give to a doctor.</p>
+      <div class="row"><button type="button" id="exp-go">Download CSV</button><button type="button" class="ghost" id="exp-copy">Copy as text</button><span class="status" id="exp-status" role="status"></span></div>
+      <textarea id="exp-text" aria-label="Exported readings" hidden readonly></textarea>
+    </details>
+  </section>
+
+  <div class="tabbar" id="tabbar" hidden>
+    <nav aria-label="Main">
+      <button type="button" data-tab="home"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add</button>
+      <button type="button" data-tab="history"><svg viewBox="0 0 24 24"><path d="M3 12h4l2-5 4 10 2-5h6"/></svg>History</button>
+      <button type="button" data-tab="move"><svg viewBox="0 0 24 24"><circle cx="14" cy="4.5" r="2"/><path d="M8 21l3-6 3 3v3M7 12l4-4 4 3 3 1M11 8l-1 5"/></svg>Move</button>
+      <button type="button" data-tab="aid" class="aidtab"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M12 9v6M9 12h6"/></svg>First aid</button>
+      <button type="button" data-tab="me"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>Profile</button>
+    </nav>
+  </div>
+
+  <p class="note" id="footnote">Adult colour bands follow the American Heart Association categories, which also apply from age 13. Children under 13 need a doctor's range based on age and height, so their readings are not colour-coded. This log does not replace advice from your doctor. In an emergency in Denmark, call <strong>112</strong>.</p>
+</div>
+
+<script>
+// ---------- blood pressure categories ----------
+// AHA adult bands (AAP 2017 uses the same cut-offs from age 13), plus low BP (<90/<60).
+const CATS = {
+  crisis:{cls:"c-crisis",label:"Hypertensive crisis",aid:"aid-crisis",msg:"Very high. If there is chest pain, shortness of breath, weakness, trouble speaking or vision changes, call 112 now. Otherwise rest 5 minutes and measure again."},
+  s2:{cls:"c-s2",label:"High, stage 2",aid:"aid-high",msg:"High. Rest and re-measure. If readings stay at this level, contact the doctor soon. Call 112 if there is chest pain, shortness of breath, weakness or trouble speaking."},
+  s1:{cls:"c-s1",label:"High, stage 1",msg:"Above normal. Keep logging and mention these readings to the doctor."},
+  elev:{cls:"c-elev",label:"Elevated",msg:"Slightly raised. Keep an eye on it with regular readings."},
+  ok:{cls:"c-ok",label:"Normal",msg:"In the normal range."},
+  low:{cls:"c-low",label:"Low",aid:"aid-low",msg:"Low. If dizzy, faint or weak, lie down with legs raised. Call 112 if someone faints and does not wake quickly, or has chest pain or confusion."},
+  na:{cls:"c-na",label:"Child under 13",msg:"Normal ranges for children under 13 depend on age, sex and height. Ask the child's doctor which numbers are normal. Call 112 if the child is very unwell, faints, has chest pain or trouble breathing."}
+};
+const ORDER=["ok","elev","s1","s2","crisis","low"];
+function classify(s,d,age,preg){
+  if(age!=null&&age<13) return "na";
+  if(s>180||d>120) return "crisis";
+  if(preg&&(s>=160||d>=110)) return "crisis"; // AHA: severe hypertension in pregnancy
+  if(s>=140||d>=90) return "s2";
+  if(s>=130||d>=80) return "s1";
+  if(s<90||d<60) return "low";
+  if(s>=120) return "elev";
+  return "ok";
+}
+function overTarget(p,s,d){return !!((p.tsys&&s>p.tsys)||(p.tdia&&d>p.tdia));}
+function targetText(p){return p.tsys||p.tdia?`${p.tsys||"–"}/${p.tdia||"–"}`:null;}
+function ageOn(birth,dateStr){
+  if(!birth) return null;
+  const [by,bm,bd]=birth.split("-").map(Number);const [y,m,d]=(dateStr||todayStr()).split("-").map(Number);
+  return y-by-((m<bm||(m===bm&&d<bd))?1:0);
+}
+// self-checks
+[[185,90,"crisis"],[150,85,"s2"],[132,78,"s1"],[125,75,"elev"],[115,75,"ok"],[85,55,"low"],[150,55,"s2"]].forEach(([s,d,c])=>console.assert(classify(s,d,40)===c,"classify",s,d));
+console.assert(classify(150,95,8)==="na","child");
+console.assert(classify(162,100,30,true)==="crisis"&&classify(162,100,30,false)==="s2","pregnancy");
+console.assert(ageOn("2010-11-26","2026-11-25")===15&&ageOn("2010-11-25","2026-11-25")===16,"age");
+
+const $=id=>document.getElementById(id);
+const pad=n=>String(n).padStart(2,"0");
+function todayStr(){const n=new Date();return `${n.getFullYear()}-${pad(n.getMonth()+1)}-${pad(n.getDate())}`;}
+function nowFields(){const n=new Date();$("f-date").value=todayStr();$("f-time").value=`${pad(n.getHours())}:${pad(n.getMinutes())}`;whenSum();}
+function whenSum(){const d=$("f-date").value,t=$("f-time").value;$("when-sum").textContent=(d===todayStr()?"Today":d)+" at "+t+" · change";}
+["f-date","f-time"].forEach(id=>$(id).addEventListener("change",whenSum));
+function mkId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8);}
+const REL={me:"Me",father:"Father",mother:"Mother",guardian:"Guardian",child:"Child",partner:"Partner",other:"Other family"};
+$("legend").innerHTML=ORDER.map(k=>`<span class="${CATS[k].cls}"><i class="dot"></i>${CATS[k].label}</span>`).join("");
+
+// ---------- state ----------
+// Adults: private to the signed-in account. Children (<18): shared with everyone the log is shared with.
+let myAct=[],kidAct=[];
+let mine=[],kids=[],myReadings=[],kidReadings=[],sel=null,editing=null;
+let view="loading"; // intro | main | form
+let api=null; // {saveProfile, delProfile, saveReading, delReading}
+const people=()=>mine.concat(kids).sort((a,b)=>(a.rel==="me"?-1:b.rel==="me"?1:a.name.localeCompare(b.name)));
+const person=id=>people().find(p=>p.id===id);
+const activityOf=p=>!p?[]:(p.shared?kidAct:myAct).filter(a=>a.pid===p.id);
+// stored and shared records are untrusted: keep only well-formed readings
+const okReading=r=>r&&typeof r==="object"&&Number.isFinite(r.sys)&&r.sys>=50&&r.sys<=300&&Number.isFinite(r.dia)&&r.dia>=30&&r.dia<=200&&/^\d{4}-\d{2}-\d{2}$/.test(r.date)&&/^\d{2}:\d{2}$/.test(r.time)&&(r.pulse==null||Number.isFinite(r.pulse))&&(r.note==null||typeof r.note==="string");
+const readingsOf=p=>!p?[]:(p.shared?kidReadings:myReadings).filter(r=>okReading(r)&&(r.pid||"self")===p.id);
+
+// ---------- storage ----------
+const LS="bp-family-v2";
+function lsLoad(){try{const o=JSON.parse(localStorage.getItem(LS)||"null");if(o){mine=o.mine||[];kids=o.kids||[];myAct=o.myAct||[];kidAct=o.kidAct||[];myReadings=o.myReadings||[];kidReadings=o.kidReadings||[];}else{myReadings=JSON.parse(localStorage.getItem("bp-readings")||"[]");}}catch(e){}}
+function lsSave(){try{localStorage.setItem(LS,JSON.stringify({mine,kids,myReadings,kidReadings,myAct,kidAct}))}catch(e){}}
+function localApi(){
+  const up=(arr,o)=>{const i=arr.findIndex(x=>x.id===o.id);i<0?arr.push(o):arr[i]=o;};
+  return{
+    saveProfile:async p=>{mine=mine.filter(x=>x.id!==p.id);kids=kids.filter(x=>x.id!==p.id);up(p.shared?kids:mine,p);lsSave();},
+    delProfile:async p=>{mine=mine.filter(x=>x.id!==p.id);kids=kids.filter(x=>x.id!==p.id);lsSave();},
+    saveReading:async(p,r)=>{up(p.shared?kidReadings:myReadings,r);lsSave();},
+    saveActivity:async(p,a)=>{(p.shared?kidAct:myAct).push(a);lsSave();},
+    delReading:async(p,r)=>{if(p.shared)kidReadings=kidReadings.filter(x=>x.id!==r.id);else myReadings=myReadings.filter(x=>x.id!==r.id);lsSave();}
+  };
+}
+
+async function initStore(){
+  let db=null,user=null,uid=null;
+  try{db=await window.claude?.use?.("db");user=await window.claude?.use?.("user");uid=user?await user.id():null;}catch(e){}
+  if(!db||!uid){lsLoad();api=localApi();$("intro-note").textContent="Not signed in, so profiles and readings are saved on this device only.";view="intro";renderAll();return;}
+  try{const me=await user.me();if(me&&me.name){const s=$("signed");s.hidden=false;const im=document.createElement("img");im.src=me.avatarUrl;im.alt="";const t=document.createElement("span");t.textContent=me.name;s.append(im,t);$("intro-note").textContent="Signed in as "+me.name+". Pick a person, or create a profile.";}}catch(e){}
+  const base=db.doc("data/users/"+uid+"/log");
+  const C={mine:base.collection("profiles"),myR:base.collection("readings"),kids:db.collection("kids"),kidR:db.collection("kidReadings"),myA:base.collection("activity"),kidA:db.collection("kidActivity")};
+  api={
+    saveProfile:async p=>{const was=person(p.id);if(was&&was.shared!==p.shared)await (was.shared?C.kids:C.mine).doc(p.id).delete();await (p.shared?C.kids:C.mine).doc(p.id).set(p);},
+    delProfile:async p=>{await (p.shared?C.kids:C.mine).doc(p.id).delete();},
+    saveReading:async(p,r)=>{await (p.shared?C.kidR:C.myR).doc(r.id).set(r);},
+    saveActivity:async(p,a)=>{await (p.shared?C.kidA:C.myA).doc(a.id).set(a);},
+    delReading:async(p,r)=>{await (p.shared?C.kidR:C.myR).doc(r.id).delete();}
+  };
+  let pending=6;
+  const t=setTimeout(()=>{if(pending>0){$("intro-note").textContent="Your records can't be reached yet. Check your connection.";view="intro";renderAll();}},10000);
+  const sub=(col,set)=>{let first=true;col.onSnapshot(s=>{if(first&&!s.metadata.fromCache){first=false;if(--pending===0){clearTimeout(t);if(view==="loading")view="intro";}}set(s.docs.map(d=>d.data()));renderAll();},e=>{clearTimeout(t);$("status").textContent="Saving is unavailable right now ("+e.code+").";});};
+  sub(C.mine,v=>mine=v);sub(C.kids,v=>kids=v);sub(C.myR,v=>myReadings=v);sub(C.kidR,v=>kidReadings=v);sub(C.myA,v=>myAct=v);sub(C.kidA,v=>kidAct=v);
+}
+
+// ---------- views ----------
+let tab="home";
+const ALLSEC=["current","calls","entry","move","exdetail","guide","hist","tools","help"];
+$("help-btn").addEventListener("click",()=>show("main","help"));
+$("help-open").addEventListener("click",()=>show("main","help"));
+function show(v,t){if(t&&t!=="ex"&&tab==="ex"&&typeof resetTimer==="function")resetTimer();view=v;if(t)tab=t;renderAll();window.scrollTo({top:0});}
+document.querySelectorAll("[data-tab]").forEach(b=>b.addEventListener("click",()=>show("main",b.dataset.tab)));
+function renderAll(){
+  const p=person(sel);
+  if(view==="main"&&!p)view="intro";
+  if(view==="intro"&&!people().length&&api&&termsOk()){openForm(null,true);return;}
+  $("intro").hidden=view!=="intro";
+  $("pform").hidden=view!=="form";
+  const main=view==="main";
+  const TABS={home:["current","calls","entry"],history:["current","hist"],move:["move"],ex:["exdetail"],aid:["calls","guide"],me:["current","tools"],help:["help"]};
+  ALLSEC.forEach(id=>$(id).hidden=!main||!TABS[tab].includes(id));
+  $("help-btn").hidden=!main||tab==="help";
+  $("tabbar").hidden=!main;document.querySelector(".wrap").classList.toggle("app",main);
+  const navTab=tab==="ex"?"move":tab==="help"?"me":tab;
+  document.querySelectorAll("[data-tab]").forEach(b=>b.toggleAttribute("aria-current",false)||b.dataset.tab===navTab&&b.setAttribute("aria-current","page"));
+  if(main&&tab==="me")$("cur-details").open=true;
+  if(view==="intro")renderIntro();
+  if(view==="main"){
+    const dn=(p.dphone||"").replace(/[^\d+]/g,"");
+    $("call-doc").hidden=!dn;if(dn){$("call-doc").href="tel:"+dn;$("call-doc-n").textContent=p.dphone;}
+    renderCurrent(p);if(tab==="move")renderMove(p);renderHistory();renderMeds(p);}
+}
+var termsAccepted=false;
+// localStorage can be blocked; then acceptance lasts for this visit only
+function termsOk(){try{return localStorage.getItem("hb-terms")==="1"||termsAccepted;}catch(e){return termsAccepted;}}
+// one copy of the legal text, moved into whichever panel is open
+for(const id of ["intro-legal","help-legal"])$(id).addEventListener("toggle",e=>{if(e.target.open)e.target.append($("legal-full"));});
+$("terms-ok").addEventListener("change",e=>$("terms-go").disabled=!e.target.checked);
+$("terms-go").addEventListener("click",()=>{termsAccepted=true;try{localStorage.setItem("hb-terms","1");}catch(e){}if(!people().length&&api)openForm(null,true);else renderIntro();});
+function renderIntro(){
+  const ok=termsOk();$("terms").hidden=ok;$("tiles").hidden=!ok;$("intro-h").textContent=ok?"Who is using the log?":"Welcome to Heartbeat";$("intro-note").hidden=!ok;
+  const box=$("tiles");box.innerHTML="";
+  for(const p of people()){
+    const b=document.createElement("button");b.type="button";b.className="tile";
+    const n=document.createElement("b");n.textContent=p.name;
+    const a=ageOn(p.birth);const s=document.createElement("span");s.textContent=(p.shared?"Child · ":(REL[p.rel]?REL[p.rel]+" · ":""))+(a!=null?a+" years":"");
+    b.append(n,s);b.addEventListener("click",()=>{sel=p.id;$("result").hidden=true;nowFields();show("main","home");});
+    box.append(b);
+  }
+  const add=document.createElement("button");add.type="button";add.className="tile add";add.textContent="+ Create profile";
+  add.addEventListener("click",()=>openForm(null));box.append(add);
+}
+function renderCurrent(p){
+  const age=ageOn(p.birth);
+  $("cur-name").textContent=p.name;
+  $("cur-meta").textContent=[p.shared?"Child":REL[p.rel],age!=null?age+" years":null].filter(Boolean).join(" · ");
+  const who=$("who");who.innerHTML="";
+  const bmi=p.height&&p.weight?(p.weight/((p.height/100)**2)).toFixed(1):null;
+  const fields=[["Doctor's target",targetText(p)||"Not set"],["Doctor's phone",p.dphone||"—"],["Height",p.height?p.height+" cm":"—"],["Weight",p.weight?p.weight+" kg":"—"],["BMI",bmi||"—"],["Conditions",p.cond||"None noted"],["Medicines",p.meds||"None noted"]];
+  if(p.shared)fields.push(["Guardians",p.guard||"—"]);
+  if(p.preg)fields.push(["Pregnancy","Yes, emergency threshold 160/110"]);
+  for(const [k,v] of fields){const d=document.createElement("div");const b=document.createElement("b");b.textContent=k;const s=document.createElement("span");s.textContent=v;d.append(b,s);who.append(d);}
+  const wn=$("who-note");wn.hidden=true;
+  if(p.shared){wn.hidden=false;wn.textContent="Child record, shared with every family member who has access to this log.";}
+  else if(age!=null&&age<18){wn.hidden=false;wn.textContent="This person is under 18. Open Edit details and save to move them to a shared child record.";}
+  $("entry-h").textContent="New reading";
+  const last=readingsOf(p).slice().sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time))[0];
+  const hero=$("hero");hero.hidden=!last||tab!=="home";hero.innerHTML="";
+  if(last){
+    const c=CATS[classify(last.sys,last.dia,ageOn(p.birth,last.date),p.preg)];hero.className="hero "+c.cls;
+    const big=document.createElement("div");big.className="big";big.textContent=`${last.sys}/${last.dia}`;
+    const u=document.createElement("small");u.textContent=" mmHg";big.append(u);
+    const cat=document.createElement("div");cat.className="cat";const dot=document.createElement("i");dot.className="dot";cat.append(dot,c.label+(overTarget(p,last.sys,last.dia)?" · above target":""));
+    const w=document.createElement("div");w.className="when-l";w.textContent=`Last reading · ${last.date===todayStr()?"today":fmtDay(last.date)} at ${last.time}`;
+    hero.append(big,cat,w);
+  }
+}
+function renderMeds(p){
+  document.querySelectorAll(".meds-box").forEach(box=>{
+    box.innerHTML="";
+    const h=document.createElement("h3");h.textContent=`${p.name}'s medicines and conditions, for the ambulance crew`;
+    const m=document.createElement("div");m.className="meds";
+    m.textContent=`Medicines: ${p.meds||"none noted"}\nConditions: ${p.cond||"none noted"}`;
+    const last=readingsOf(p).slice().sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time))[0];
+    if(p.dphone)m.textContent+=`\nDoctor: ${p.dphone}`;
+    if(last)m.textContent+=`\nLast reading: ${last.sys}/${last.dia} on ${last.date} at ${last.time}`;
+    box.append(h,m);
+  });
+}
+$("switch").addEventListener("click",()=>show("intro"));
+
+// helper / self tabs
+function setTab(help){
+  $("tab-self").setAttribute("aria-selected",String(!help));$("tab-help").setAttribute("aria-selected",String(help));
+  document.querySelectorAll("[data-for]").forEach(el=>el.hidden=(el.dataset.for==="help")!==help);
+}
+$("tab-self").addEventListener("click",()=>setTab(false));
+$("tab-help").addEventListener("click",()=>setTab(true));
+function openAid(id){const d=$(id);if(!d)return;show("main","aid");document.querySelectorAll(".aid").forEach(x=>x.open=x===d);d.scrollIntoView({block:"start"});}
+
+// ---------- profile form ----------
+function openForm(p,first){
+  editing=p;view="form";
+  $("intro").hidden=true;$("pform").hidden=false;
+  ALLSEC.forEach(id=>$(id).hidden=true);$("help-btn").hidden=true;
+  $("pform-h").textContent=p?"Edit "+p.name:(first?"Welcome. Start by creating your profile":"Create a profile");
+  $("p-name").value=p?.name||"";
+  $("p-rel").value=p?.rel||(first?"me":"other");
+  $("p-birth").value=p?.birth||"";
+  $("p-sex").value=p?.sex||"";
+  $("p-height").value=p?.height||"";
+  $("p-weight").value=p?.weight||"";
+  $("p-cond").value=p?.cond||"";
+  $("p-meds").value=p?.meds||"";
+  $("p-guard").value=p?.guard||"";
+  $("p-tsys").value=p?.tsys||"";$("p-tdia").value=p?.tdia||"";$("p-dphone").value=p?.dphone||"";$("p-preg").checked=!!p?.preg;
+  $("p-del").hidden=!p;$("p-cancel").hidden=!!first&&!people().length;
+  $("p-status").textContent="";delArmed=false;$("p-del").textContent="Remove person";
+  childHint();
+  $("p-name").focus();
+}
+function childHint(){
+  const age=ageOn($("p-birth").value);
+  const child=(age!=null&&age<18);
+  if(child)$("p-rel").value="child";
+  $("p-guard-wrap").hidden=!child;$("p-childnote").hidden=!child;
+  $("p-preg-wrap").hidden=$("p-sex").value!=="female";
+}
+$("p-sex").addEventListener("change",childHint);
+$("p-birth").addEventListener("change",childHint);
+$("p-cancel").addEventListener("click",()=>{const back=editing?"main":"intro";editing=null;show(back);});
+$("edit-person").addEventListener("click",()=>openForm(person(sel)));
+let delArmed=false;
+$("p-del").addEventListener("click",async()=>{
+  if(!editing)return;
+  const n=readingsOf(editing).length;
+  if(!delArmed){delArmed=true;$("p-del").textContent="Confirm remove";$("p-status").textContent=n?`This also removes ${n} reading${n>1?"s":""}.`:"";return;}
+  const p=editing;
+  try{for(const r of readingsOf(p))await api.delReading(p,r);await api.delProfile(p);sel=null;editing=null;show("intro");}
+  catch(e){$("p-status").textContent="Could not remove: "+(e?.code||"error")+".";}
+});
+$("pform").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const name=$("p-name").value.trim(),birth=$("p-birth").value;
+  if(!name||!birth){$("p-status").textContent="Enter a name and birth date.";return;}
+  const age=ageOn(birth);
+  if(age<0||age>120){$("p-status").textContent="Check the birth date.";return;}
+  const num=id=>$(id).value?+$(id).value:null;
+  const shared=age<18;
+  const old=editing;
+  const id=old?old.id:(!mine.some(x=>x.id==="self")&&!shared?"self":mkId());
+  const p={id,name,rel:shared?"child":$("p-rel").value,birth,sex:$("p-sex").value||null,height:num("p-height"),weight:num("p-weight"),
+    cond:$("p-cond").value.trim()||null,meds:$("p-meds").value.trim()||null,guard:shared?($("p-guard").value.trim()||null):null,shared,
+    tsys:num("p-tsys"),tdia:num("p-tdia"),dphone:$("p-dphone").value.trim()||null,preg:$("p-sex").value==="female"&&$("p-preg").checked,updated:new Date().toISOString()};
+  $("p-status").textContent="Saving…";
+  try{
+    // moving between private and shared storage also moves the readings
+    if(old&&old.shared!==shared){for(const r of readingsOf(old)){await api.saveReading(p,r);await api.delReading(old,r);}}
+    await api.saveProfile(p);sel=id;editing=null;nowFields();show("main");
+  }catch(err){$("p-status").textContent="Could not save: "+(err?.code||"error")+". Try again.";}
+});
+
+
+// ---------- emergency number by country ----------
+// Source: Wikipedia "List of emergency telephone numbers" (CC BY-SA 4.0), via github.com/fernando-195/emergency-and-helplines-api, 2026-11-01.
+// shortcut: guidance data, not verified per country; check each market's official number before launch there.
+const EMERG={"AF":["Afghanistan","112"],"AL":["Albania","127"],"DZ":["Algeria","14"],"AS":["American Samoa","911"],"AD":["Andorra","116"],"AO":["Angola","112","112/116"],"AI":["Anguilla","911"],"AQ":["Antarctica","911","McMurdo Station: 911 (fire and medical emergency dispatch)"],"AG":["Antigua & Barbuda","911","911 or 999"],"AR":["Argentina","911"],"AM":["Armenia","112","112 or 911"],"AW":["Aruba","911"],"AC":["Ascension Island","999"],"AU":["Australia","000"],"AT":["Austria","144"],"AZ":["Azerbaijan","112","112 or 103"],"BS":["Bahamas","911","911 or 919"],"BH":["Bahrain","999"],"BD":["Bangladesh","999"],"BB":["Barbados","511"],"BY":["Belarus","103"],"BE":["Belgium","112"],"BZ":["Belize","911"],"BJ":["Benin","112"],"BM":["Bermuda","911"],"BT":["Bhutan","112"],"BO":["Bolivia","911"],"BA":["Bosnia & Herzegovina","124"],"BW":["Botswana","997"],"BR":["Brazil","192"],"IO":["British Indian Ocean Territory","112","112 or 999"],"VG":["British Virgin Islands","911","911 or 999"],"BN":["Brunei","991"],"BG":["Bulgaria","112","112 or 150"],"BF":["Burkina Faso","112"],"BI":["Burundi","112"],"KH":["Cambodia","119"],"CM":["Cameroon","112"],"CA":["Canada","911"],"CV":["Cape Verde","130"],"BQ":["Caribbean Netherlands","911"],"KY":["Cayman Islands","911"],"CF":["Central African Republic","1220"],"TD":["Chad","2251-4242"],"CL":["Chile","131"],"CN":["China","120"],"CX":["Christmas Island","000"],"CP":["Clipperton Island","112"],"CC":["Cocos (Keeling) Islands","000"],"CO":["Colombia","125"],"KM":["Comoros","772-03-73"],"CG":["Congo - Brazzaville","117"],"CD":["Congo - Kinshasa","112"],"CK":["Cook Islands","999"],"CR":["Costa Rica","911"],"HR":["Croatia","112","112 or 194"],"CU":["Cuba","104"],"CW":["Curaçao","910","910 and 912"],"CY":["Cyprus","112","112 or 199"],"CZ":["Czechia","112","112 or 155"],"CI":["Côte d’Ivoire","185"],"DK":["Denmark","112"],"DJ":["Djibouti","19"],"DM":["Dominica","999"],"DO":["Dominican Republic","911"],"EC":["Ecuador","911"],"EG":["Egypt","123"],"SV":["El Salvador","132"],"GQ":["Equatorial Guinea","115"],"ER":["Eritrea","114"],"EE":["Estonia","112"],"SZ":["Eswatini","977"],"ET":["Ethiopia","911"],"FK":["Falkland Islands","112","112 or 999"],"FO":["Faroe Islands","112"],"FJ":["Fiji","911"],"FI":["Finland","112"],"FR":["France","112","112 or 15"],"GF":["French Guiana","112"],"PF":["French Polynesia","112"],"GA":["Gabon","1300"],"GM":["Gambia","116"],"GE":["Georgia","112"],"DE":["Germany","112"],"GH":["Ghana","112"],"GI":["Gibraltar","190","190 or 112 or 999"],"GR":["Greece","166","166 or 112"],"GL":["Greenland","112"],"GD":["Grenada","911"],"GP":["Guadeloupe","112"],"GU":["Guam","911"],"GT":["Guatemala","122","122 CBV (national) ; 123 CBM (municipal local only) ; 1554 ASOBOMBD (municipalities associations, national) ;"],"GG":["Guernsey","112","112 or 999"],"GN":["Guinea","18"],"GW":["Guinea-Bissau","112"],"GY":["Guyana","913"],"HT":["Haiti","116"],"HN":["Honduras","195"],"HK":["Hong Kong SAR China","999"],"HU":["Hungary","112","112 or 104"],"IS":["Iceland","112"],"IN":["India","112"],"ID":["Indonesia","112"],"IR":["Iran","115"],"IQ":["Iraq","112","112 or 911"],"IE":["Ireland","112","112 or 999"],"IM":["Isle of Man","112","112 or 999"],"IL":["Israel","101"],"IT":["Italy","112"],"JM":["Jamaica","110"],"JP":["Japan","119"],"JE":["Jersey","112","112 or 999"],"JO":["Jordan","911"],"KZ":["Kazakhstan","112"],"KE":["Kenya","112","112 or 999 or 911"],"KI":["Kiribati","100","100 or 999"],"XK":["Kosovo","194"],"KW":["Kuwait","112"],"KG":["Kyrgyzstan","112"],"LA":["Laos","195"],"LV":["Latvia","112"],"LB":["Lebanon","140"],"LS":["Lesotho","121"],"LR":["Liberia","911"],"LY":["Libya","1515"],"LI":["Liechtenstein","144"],"LT":["Lithuania","112"],"LU":["Luxembourg","112"],"MO":["Macao SAR China","999"],"MG":["Madagascar","124"],"MW":["Malawi","998"],"MY":["Malaysia","999"],"MV":["Maldives","911"],"ML":["Mali","15"],"MT":["Malta","112"],"MH":["Marshall Islands","911"],"MQ":["Martinique","112"],"MR":["Mauritania","101"],"MU":["Mauritius","114"],"YT":["Mayotte","112"],"MX":["Mexico","911"],"FM":["Micronesia","911"],"MD":["Moldova","112"],"MC":["Monaco","112","112 or 18"],"MN":["Mongolia","105"],"ME":["Montenegro","124","124 or 112"],"MS":["Montserrat","911","911 or 999"],"MA":["Morocco","15"],"MZ":["Mozambique","117"],"MM":["Myanmar (Burma)","999"],"NR":["Nauru","111"],"NP":["Nepal","102"],"NL":["Netherlands","112"],"NC":["New Caledonia","112"],"NZ":["New Zealand","111"],"NI":["Nicaragua","128"],"NE":["Niger","15"],"NG":["Nigeria","112"],"NU":["Niue","683 4202","(+683) 4202"],"KP":["North Korea","110","110 or 8119"],"MK":["North Macedonia","194","194 or 112"],"MP":["Northern Mariana Islands","911"],"NO":["Norway","113"],"OM":["Oman","9999"],"PK":["Pakistan","115","115 and 1122"],"PW":["Palau","911"],"PS":["Palestinian Territories","101"],"PA":["Panama","911"],"PG":["Papua New Guinea","111"],"PY":["Paraguay","911"],"PE":["Peru","911"],"PH":["Philippines","911"],"PL":["Poland","999","999 or 112"],"PT":["Portugal","112"],"PR":["Puerto Rico","911"],"QA":["Qatar","999"],"RO":["Romania","112"],"RU":["Russia","103","103 or 112"],"RW":["Rwanda","912"],"RE":["Réunion","112"],"WS":["Samoa","999"],"SM":["San Marino","118"],"SA":["Saudi Arabia","911"],"SN":["Senegal","18"],"RS":["Serbia","194"],"SC":["Seychelles","112","112 or 999"],"SL":["Sierra Leone","999"],"SG":["Singapore","995"],"SX":["Sint Maarten","912"],"SK":["Slovakia","112","112 or 155"],"SI":["Slovenia","112"],"SB":["Solomon Islands","911","911 or 999"],"SO":["Somalia","999"],"ZA":["South Africa","10 177"],"GS":["South Georgia & South Sandwich Islands","999"],"KR":["South Korea","119"],"SS":["South Sudan","999"],"ES":["Spain","112"],"LK":["Sri Lanka","110"],"BL":["St. Barthélemy","18"],"SH":["St. Helena","999"],"KN":["St. Kitts & Nevis","911"],"LC":["St. Lucia","911","911 or 999"],"MF":["St. Martin","15"],"PM":["St. Pierre & Miquelon","112"],"VC":["St. Vincent & Grenadines","999","999 or 911 or 112"],"SD":["Sudan","999"],"SR":["Suriname","115"],"SE":["Sweden","112"],"CH":["Switzerland","144"],"SY":["Syria","110"],"ST":["São Tomé & Príncipe","112"],"TW":["Taiwan","119"],"TJ":["Tajikistan","112"],"TZ":["Tanzania","114"],"TH":["Thailand","1669"],"TL":["Timor-Leste","112"],"TG":["Togo","8200"],"TK":["Tokelau","690 2112","(+690) 2112"],"TO":["Tonga","911"],"TT":["Trinidad & Tobago","811"],"TA":["Tristan da Cunha","911"],"TN":["Tunisia","190"],"TM":["Turkmenistan","03"],"TC":["Turks & Caicos Islands","911"],"TV":["Tuvalu","911"],"TR":["Türkiye","112","112 or 911"],"VI":["U.S. Virgin Islands","911"],"UG":["Uganda","911"],"UA":["Ukraine","103"],"AE":["United Arab Emirates","998"],"GB":["United Kingdom","999","999 or 112"],"US":["United States","911"],"UY":["Uruguay","911"],"UZ":["Uzbekistan","103"],"NH":["Vanuatu","112"],"VA":["Vatican City","112"],"VE":["Venezuela","911","911 and 171"],"VN":["Vietnam","115"],"WF":["Wallis & Futuna","15"],"EH":["Western Sahara","150"],"YD":["Yemen","191"],"ZM":["Zambia","999"],"RH":["Zimbabwe","999"],"AX":["Åland Islands","112"]};
+let EM={cc:"DK",num:"112"};
+const emText=t=>String(t).replace(/\b112\b/g,EM.num);
+function guessCountry(){
+  try{const c=localStorage.getItem("hb-country");if(c&&EMERG[c])return c;}catch(e){}
+  for(const l of navigator.languages||[navigator.language]){try{const r=new Intl.Locale(l).maximize().region;if(r&&EMERG[r])return r;}catch(e){}}
+  return "DK";
+}
+// wrap each "112" in static guidance text once, so it can follow the chosen country
+function markEmNumbers(){
+  for(const root of document.querySelectorAll("#calls,#guide,#help,#footnote")){
+    const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);const hits=[];
+    while(w.nextNode())if(/\b112\b/.test(w.currentNode.nodeValue))hits.push(w.currentNode);
+    for(const n of hits){const f=document.createDocumentFragment();n.nodeValue.split(/\b(112)\b/).forEach((x,i)=>{if(i%2){const sp=document.createElement("span");sp.className="em-n";sp.textContent=x;f.append(sp);}else if(x)f.append(x);});n.replaceWith(f);}
+  }
+}
+function applyCountry(cc){
+  const [name,num,note]=EMERG[cc];EM={cc,num};
+  const dial=num.replace(/[^0-9+]/g,"");
+  document.querySelectorAll(".em-n").forEach(x=>x.textContent=num);
+  document.querySelectorAll("a.ecall").forEach(a=>{a.href="tel:"+dial;});
+  document.querySelectorAll(".cc-name").forEach(x=>x.textContent=name);
+  document.querySelectorAll(".dk-only").forEach(x=>x.hidden=cc!=="DK");
+  $("cc-sel").value=cc;$("cc-note").hidden=!note;$("cc-note").textContent=note?`Numbers in ${name}: ${note}`:"";
+}
+$("cc-sel").innerHTML=Object.entries(EMERG).map(([k,v])=>`<option value="${k}">${v[0]} (${v[1]})</option>`).join("");
+$("cc-sel").addEventListener("change",e=>{try{localStorage.setItem("hb-country",e.target.value);}catch(_){}applyCountry(e.target.value);});
+markEmNumbers();applyCountry(guessCountry());
+
+// ---------- entry ----------
+// rows with both numbers filled; blanks are skipped
+function triRows(){return [...document.querySelectorAll("#tri .tri-row:not(.tri-head)")].map((row,i)=>{const v=c=>row.querySelector(c).value;return {n:i+1,sys:+v(".r-s"),dia:+v(".r-d"),pulse:v(".r-p")?+v(".r-p"):null,filled:v(".r-s")!==""&&v(".r-d")!==""};}).filter(x=>x.filled);}
+function avgOf(rs){const m=a=>a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length):null;return {sys:m(rs.map(x=>x.sys)),dia:m(rs.map(x=>x.dia)),pulse:m(rs.map(x=>x.pulse).filter(x=>x!=null))};}
+function drawAvg(){const rs=triRows().filter(x=>x.sys>=50&&x.dia>=30&&x.dia<x.sys);
+  if(!rs.length){$("avg-v").textContent="–/–";$("avg-n").textContent="Take 2–3 readings, 1 minute apart";return;}
+  const a=avgOf(rs);$("avg-v").textContent=`${a.sys}/${a.dia}`;
+  $("avg-n").textContent=(rs.length===1?"From 1 reading. Add another after 1 minute.":`Average of ${rs.length} readings`)+(a.pulse?` · pulse ${a.pulse}`:"");}
+$("tri").addEventListener("input",e=>{drawAvg();
+  // jump to the next box once no further digit can fit (3 digits, or 2 when a 3rd would pass the max)
+  const t=e.target,v=t.value;if(!v||e.inputType?.startsWith("delete"))return;
+  if(v.length>=3||+v*10>+t.max){const all=[...document.querySelectorAll("#tri input"),$("f-note")];all[all.indexOf(t)+1]?.focus();}
+});
+$("entry").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const p=person(sel);if(!p)return;
+  const date=$("f-date").value,time=$("f-time").value;
+  if(!date||!time){$("status").textContent="Enter the date and time.";return;}
+  const rs=triRows();
+  if(!rs.length){$("status").textContent="Enter at least one reading: top and bottom number.";return;}
+  for(const [i,x] of rs.entries()){
+    if(!(x.sys>=50&&x.sys<=300)||!(x.dia>=30&&x.dia<=200)){$("status").textContent=`Reading ${x.n}: enter the top number (50–300) and bottom number (30–200).`;return;}
+    if(x.dia>=x.sys){$("status").textContent=`Reading ${x.n}: the top number should be higher than the bottom number.`;return;}
+  }
+  const {sys:s,dia:d,pulse:pu}=avgOf(rs);
+  const r={id:mkId(),pid:p.id,date,time,sys:s,dia:d,pulse:pu,parts:rs.length>1?rs.map(x=>({sys:x.sys,dia:x.dia,pulse:x.pulse})):null,note:$("f-note").value.trim()||null,created:new Date().toISOString()};
+  const k=classify(s,d,ageOn(p.birth,date),p.preg),cat=CATS[k];
+  const box=$("result");box.className="result "+cat.cls;box.hidden=false;box.innerHTML="";
+  const st=document.createElement("strong");st.textContent=`${p.name}: ${s}/${d} · ${cat.label}`;
+  const m=document.createElement("span");m.textContent=emText(cat.msg);
+  box.append(st,m);
+  if(targetText(p)){const t=document.createElement("span");t.textContent=overTarget(p,s,d)?`Above ${p.name}'s doctor's target of ${targetText(p)}.`:`Within ${p.name}'s doctor's target of ${targetText(p)}.`;box.append(t);}
+  if(k==="crisis"||k==="low"){
+    const c=document.createElement("div");c.className="call";
+    const dial=EM.num.replace(/[^0-9+]/g,"");c.innerHTML=`<a class="ecall" href="tel:${dial}" target="_blank" rel="noopener">Call ${EM.num}</a><span class="note">If the button does nothing, dial ${EM.num} on your phone.</span>`;
+    box.append(c);
+  }
+  if(cat.aid){
+    const b=document.createElement("button");b.type="button";b.className="ghost";b.textContent="Show first aid steps";
+    b.addEventListener("click",()=>openAid(cat.aid));box.append(b);
+  }
+  $("status").textContent="Saving…";
+  try{await api.saveReading(p,r);renderAll();$("status").textContent="Saved.";}
+  catch(err){$("status").textContent="Could not save: "+(err?.code||"error")+". Try again.";}
+  document.querySelectorAll("#tri input").forEach(i=>i.value="");$("f-note").value="";drawAvg();nowFields();
+  box.scrollIntoView({block:"nearest",behavior:"smooth"});
+});
+
+// ---------- history ----------
+const fmtDay=iso=>{const [y,m,d]=iso.split("-").map(Number);return new Date(y,m-1,d).toLocaleDateString(undefined,{weekday:"short",day:"numeric",month:"short",year:"numeric"});};
+let pendingDel=null;
+function renderHistory(){
+  const p=person(sel);const h=$("history");if(!p){h.innerHTML="";return;}
+  const list=readingsOf(p).slice().sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time));
+  $("count").textContent=list.length?`${list.length} reading${list.length>1?"s":""}`:"";
+  if(!list.length){h.innerHTML="";const e=document.createElement("p");e.className="empty";e.textContent=`No readings for ${p.name} yet. Add one above, or import past readings below.`;h.append(e);return;}
+  h.innerHTML="";
+  let cur=null,dayEl=null;
+  for(const r of list){
+    if(r.date!==cur){cur=r.date;dayEl=document.createElement("div");dayEl.className="day";const t=document.createElement("h3");t.textContent=fmtDay(r.date);dayEl.append(t);h.append(dayEl);}
+    const c=CATS[classify(r.sys,r.dia,ageOn(p.birth,r.date),p.preg)];
+    const it=document.createElement("div");it.className="item "+c.cls;
+    const dot=document.createElement("i");dot.className="dot "+c.cls;
+    const tm=document.createElement("span");tm.className="t";tm.textContent=r.time;
+    const mid=document.createElement("div");
+    const v=document.createElement("div");v.className="v";v.textContent=`${r.sys}/${r.dia} `;
+    if(r.pulse){const sm=document.createElement("small");sm.textContent=`pulse ${r.pulse}`;v.append(sm);}
+    if(r.parts){const sm=document.createElement("small");sm.textContent=`average of ${r.parts.length}`;v.append(sm);}
+    const lab=document.createElement("div");lab.className="lab";lab.textContent=c.label+(overTarget(p,r.sys,r.dia)?" · above target":"")+(r.note?` · ${r.note}`:"");
+    mid.append(v,lab);
+    const del=document.createElement("button");del.type="button";del.className="ghost small del";
+    del.textContent=pendingDel===r.id?"Confirm delete":"Delete";
+    del.addEventListener("click",async()=>{if(pendingDel===r.id){pendingDel=null;await api.delReading(p,r);renderAll();}else{pendingDel=r.id;renderHistory();}});
+    it.append(dot,tm,mid,del);dayEl.append(it);
+  }
+}
+
+// ---------- import ----------
+function parseLine(line){
+  const m=line.match(/(\d{1,4})[.\/-](\d{1,2})[.\/-](\d{1,4}).*?(\d{1,2})[:.](\d{2}).*?(\d{2,3})\s*\/\s*(\d{2,3})(?:\D+(\d{2,3}))?/);
+  if(!m) return null;
+  let [_,a,b,c,hh,mm,s,d,p]=m;let y,mo,da;
+  if(a.length===4){y=a;mo=b;da=c;} else {da=a;mo=b;y=c.length===2?"20"+c:c;}
+  if(+mo<1||+mo>12||+da<1||+da>31||+hh>23) return null;
+  s=+s;d=+d;
+  if(s<50||s>300||d<30||d>200) return null;
+  return {id:mkId(),date:`${y}-${pad(+mo)}-${pad(+da)}`,time:`${pad(+hh)}:${mm}`,sys:s,dia:d,pulse:p?+p:null,note:null,created:new Date().toISOString()};
+}
+console.assert(parseLine("2026-11-20 08:15 135/85 72").sys===135,"parse iso");
+console.assert(parseLine("20.11.2026, 21:30, 128/82").date==="2026-11-20","parse dk");
+$("imp-file").addEventListener("change",async e=>{const f=e.target.files[0];if(f)$("imp-text").value=await f.text();});
+$("imp-go").addEventListener("click",async()=>{
+  const p=person(sel);if(!p)return;
+  const lines=$("imp-text").value.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+  const have=new Set(readingsOf(p).map(r=>`${r.date} ${r.time} ${r.sys}/${r.dia}`));
+  const ok=[];let bad=0,dup=0;
+  for(const l of lines){const r=parseLine(l);if(!r){bad++;continue;}const k=`${r.date} ${r.time} ${r.sys}/${r.dia}`;if(have.has(k)){dup++;continue;}have.add(k);r.pid=p.id;ok.push(r);}
+  if(!ok.length){$("imp-status").textContent=lines.length?`No new readings found. ${bad} line(s) could not be read.`:"Paste readings first.";return;}
+  $("imp-status").textContent="Importing…";
+  try{for(const r of ok)await api.saveReading(p,r);renderAll();$("imp-status").textContent=`Imported ${ok.length} for ${p.name}.`+(dup?` ${dup} already in the log.`:"")+(bad?` ${bad} line(s) could not be read.`:"");$("imp-text").value="";}
+  catch(err){$("imp-status").textContent="Import stopped: "+(err?.code||"error")+".";}
+});
+
+// ---------- export ----------
+function toCSV(p){
+  const rows=readingsOf(p).slice().sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+  // quote, and stop spreadsheet formula injection (cells starting with = + - @)
+  const q=v=>v==null?"":`"${String(v).replace(/^([=+\-@\t\r])/,"'$1").replace(/"/g,'""')}"`;
+  return ["name,date,time,systolic,diastolic,pulse,category,note"].concat(rows.map(r=>[q(p.name),r.date,r.time,r.sys,r.dia,r.pulse??"",q(CATS[classify(r.sys,r.dia,ageOn(p.birth,r.date),p.preg)].label),q(r.note)].join(","))).join("\n");
+}
+$("exp-go").addEventListener("click",async()=>{
+  const p=person(sel);if(!p||!readingsOf(p).length){$("exp-status").textContent="No readings to export yet.";return;}
+  const dl=await window.claude?.use?.("downloads")?.catch?.(()=>null);
+  if(!dl){$("exp-status").textContent="Download isn't available here. Use Copy as text.";return;}
+  try{await dl.save({filename:`bp-${p.name.replace(/[^\w-]+/g,"_")}-${todayStr()}.csv`,data:toCSV(p)});$("exp-status").textContent="";}
+  catch(e){$("exp-status").textContent="Download was not saved.";}
+});
+$("exp-copy").addEventListener("click",async()=>{
+  const p=person(sel);if(!p)return;
+  const t=$("exp-text");t.value=toCSV(p);t.hidden=false;
+  try{await navigator.clipboard.writeText(t.value);$("exp-status").textContent="Copied.";}
+  catch(e){t.select();$("exp-status").textContent="Select the text below and copy it.";}
+});
+
+// ---------- Move: exercises ----------
+// ---------- Move: exercises ----------
+// Flat human figure from joint positions. f = facing (1 right, -1 left).
+// Illustrations: Open Exercise Illustrations (CC0 1.0), github.com/hitmanrepo/open-exercise-illustrations
+const PIX={walk:["marching-in-place_start","marching-in-place_end"],cycle:["stationary-bike_hold"],wallsit:["wall-sit_hold"],grip:["towel-wring_start","towel-wring_end"],sts:["box-squat_end","box-squat_start"],pushup:["wall-push-up_start","wall-push-up_end"],breathe:["seated-knee-extension_start"],box:["seated-knee-extension_start"],mind:["butterfly-stretch_hold"],stretch:["wall-calf-stretch_hold"]};
+const pic=(f,alt)=>`<img src="img/${f}.webp" alt="${alt}" loading="lazy" decoding="async">`;
+const picCard=(id,t)=>`<div class="pic">${pic(PIX[id][0],t)}</div>`;
+const picHero=(id,t)=>{const f=PIX[id];return `<div class="pics n${f.length}">${f.map((x,i)=>`<figure>${pic(x,t)}${f.length>1?`<figcaption>${i?"Then":"Start"}</figcaption>`:""}</figure>`).join("")}</div>`;};
+const EX=[
+  {id:"walk",title:"Brisk walking",kind:"Cardio",dur:"30 min",freq:"5 days a week",level:"Easy",
+   why:"Regular cardio is one of the best-proven ways to lower blood pressure and strengthen the heart. Walking needs no equipment and is gentle on the joints.",
+   steps:["Walk fast enough that you breathe harder but can still talk in short sentences.","Start with 10 minutes and add 5 minutes each week until you reach 30.","Three 10-minute walks in a day count the same as one 30-minute walk.","Finish with 3 minutes of slow walking to cool down."],
+   safety:"Wear good shoes. In cold weather, warm up indoors first and cover your face, because cold air can raise blood pressure.",
+   timer:{mode:"watch"}},
+  {id:"cycle",title:"Cycling",kind:"Cardio",dur:"20–30 min",freq:"3–5 days a week",level:"Easy to moderate",
+   why:"Cycling trains the heart and lungs with little strain on knees and hips. An exercise bike at home works just as well.",
+   steps:["Set the saddle so your knee is slightly bent at the bottom of the pedal stroke.","Pedal easily for 5 minutes to warm up.","Ride at a pace where you breathe harder but can still talk.","Slow down for the last 5 minutes."],
+   safety:"Always wear a helmet outdoors. Choose flat routes when you start.",
+   timer:{mode:"watch"}},
+  {id:"wallsit",title:"Wall sit",kind:"Isometric strength",dur:"14 min",freq:"3 days a week",level:"Moderate",
+   why:"Holding a muscle still under tension, called isometric exercise, has been among the most effective exercise types for lowering blood pressure in recent research.",
+   steps:["Stand with your back against a wall, feet hip-width apart, about 50 cm from the wall.","Slide down until the hold feels hard by the end of 2 minutes. Never go lower than knees at 90 degrees.","Hold for 2 minutes. Keep breathing normally the whole time.","Stand up and rest for 2 minutes. Repeat 4 times."],
+   safety:"Never hold your breath while you hold the position. Count out loud if it helps. Skip this exercise if your blood pressure at rest is above 180/110.",
+   timer:{mode:"interval",sets:4,work:120,rest:120,workLabel:"Hold",restLabel:"Rest"}},
+  {id:"grip",title:"Handgrip squeeze",kind:"Isometric strength",dur:"12 min",freq:"3 days a week",level:"Easy",
+   why:"A steady, light squeeze held for 2 minutes is a proven isometric exercise for blood pressure. You can do it sitting in a chair.",
+   steps:["Hold a soft ball, a rolled-up towel or a handgrip trainer.","Squeeze at about 30% of your strongest grip. It should feel light at first and harder by the end.","Hold for 2 minutes while breathing normally.","Rest 1 minute and switch hands. Do 4 squeezes in total, 2 per hand."],
+   safety:"Breathe normally throughout. Stop if you get pain in your hand or wrist.",
+   timer:{mode:"interval",sets:4,work:120,rest:60,workLabel:"Squeeze",restLabel:"Rest and switch hands"}},
+  {id:"sts",title:"Sit to stand",kind:"Strength",dur:"10 min",freq:"2–3 days a week",level:"Easy",
+   why:"Strong legs make everyday life easier and support healthy blood pressure. This one needs only a sturdy chair.",
+   steps:["Sit near the front of a sturdy chair, feet flat and hip-width apart.","Lean slightly forward and stand up without using your hands if you can.","Sit back down slowly, taking about 3 seconds.","Repeat for 45 seconds, then rest. Do 3 rounds."],
+   safety:"Put the chair against a wall so it can't slide. Use your hands on your thighs if you need support.",
+   timer:{mode:"interval",sets:3,work:45,rest:60,workLabel:"Stand up, sit down",restLabel:"Rest"}},
+  {id:"pushup",title:"Wall push-ups",kind:"Strength",dur:"8 min",freq:"2–3 days a week",level:"Easy",
+   why:"A gentle way to build arm, chest and shoulder strength without getting down on the floor.",
+   steps:["Stand an arm's length from a wall with hands on the wall at shoulder height.","Keep your body straight and bend your elbows to bring your chest towards the wall.","Push back to the start. Breathe out as you push.","Repeat for 45 seconds, then rest. Do 3 rounds."],
+   safety:"Move slowly and keep breathing. Step closer to the wall to make it easier.",
+   timer:{mode:"interval",sets:3,work:45,rest:60,workLabel:"Push-ups",restLabel:"Rest"}},
+  {id:"breathe",title:"Slow breathing",kind:"Relaxation",dur:"5 min",freq:"Daily",level:"Easy",
+   why:"Breathing slowly, about 6 breaths a minute, calms the nervous system and can lower blood pressure for a while. It also helps when a reading makes you anxious.",
+   steps:["Sit comfortably with your back supported and feet on the floor.","Breathe in gently through your nose while the circle grows, for 5 seconds.","Breathe out slowly while the circle shrinks, for 5 seconds.","Continue for 5 minutes. Let your shoulders drop."],
+   safety:"Breathe gently, not deeply. If you feel light-headed, return to normal breathing.",
+   timer:{mode:"breath",total:300,sub:"6 breaths a minute",phases:[[5,"Breathe in",2.4],[5,"Breathe out",1]]}},
+  {id:"box",title:"Box breathing",kind:"Relaxation",dur:"4 min",freq:"Daily, or when stressed",level:"Easy",
+   why:"Box breathing gives each breath four equal sides: in, hold, out, hold. The steady count slows your breathing and gives a worried mind something simple to follow. Use it before a reading or when you feel tense.",
+   steps:["Sit upright with your back supported and feet on the floor. Rest your hands in your lap.","Breathe in through your nose for 4 seconds while the circle grows.","Hold the breath gently for 4 seconds.","Breathe out slowly through your mouth for 4 seconds while the circle shrinks.","Hold for 4 seconds, then start again. Continue for 4 minutes."],
+   safety:"Hold gently, never strain. If holding is uncomfortable, or you are pregnant or have heart or lung disease, skip the holds and use Slow breathing instead.",
+   timer:{mode:"breath",total:240,sub:"4 seconds each side",phases:[[4,"Breathe in",2.4],[4,"Hold",2.4],[4,"Breathe out",1],[4,"Hold",1]]}},
+  {id:"mind",title:"Mindfulness program",kind:"Mind",dur:"10 min",freq:"Daily for 4 weeks",level:"Easy",
+   why:"Mindfulness means paying calm attention to the present moment without judging it. Regular practice lowers stress, and some studies show a small drop in blood pressure. It works best as a daily habit, so this is a 4-week program.",
+   steps:["Week 1: one 10-minute guided session a day, sitting comfortably. Use the timer below. It tells you when to move your attention.","Week 2: keep the daily session. Add one mindful minute before each blood pressure reading: notice your breath and your body.","Week 3: keep the session. Do one everyday task mindfully each day, such as drinking tea, showering or walking, with full attention on what you sense.","Week 4: keep the session. When you notice stress, pause for 3 breaths: notice what you feel, then breathe slowly, then carry on.","Your mind will wander many times. That is normal. Each time you notice and come back is the practice."],
+   safety:"Mindfulness is safe for most people. If difficult feelings come up and stay, stop and talk to your doctor. It does not replace your blood pressure medicine.",
+   timer:{mode:"guide",total:600,cues:[[0,"Settle","Sit comfortably. Close your eyes or look softly at the floor."],[30,"Breath","Notice your breath, cool air in, warm air out. No need to change it."],[150,"Feet and legs","Move your attention to your feet, then up through your legs. Notice any warmth, tension or contact."],[240,"Back and belly","Notice your back against the chair and your belly rising and falling."],[330,"Shoulders and hands","Notice your shoulders, arms and hands. Let them soften."],[420,"Face","Notice your jaw, eyes and forehead. Let them relax."],[480,"Whole body","Feel your whole body breathing. When your mind wanders, gently come back."],[570,"Return","Notice the sounds around you. Slowly open your eyes."]]}},
+  {id:"stretch",title:"Stretch and unwind",kind:"Mobility",dur:"4 min",freq:"After activity or daily",level:"Easy",
+   why:"Gentle stretching keeps you moving freely and is a calm way to finish a workout or end the day.",
+   steps:["Side stretch: reach both arms up and lean gently to one side, then the other.","Calf stretch: hands on a wall, one leg back with the heel down.","Chest stretch: hands behind your back, open the chest.","Neck: tilt your ear towards your shoulder. Hold each stretch 30 seconds."],
+   safety:"Stretch until you feel a mild pull, never pain. Don't bounce.",
+   timer:{mode:"interval",sets:6,work:30,rest:10,workLabel:"Hold the stretch",restLabel:"Next stretch"}}
+];
+const exById=id=>EX.find(e=>e.id===id);
+const ACT_KINDS=EX.map(e=>[e.id,e.title]).concat([["other","Other activity"]]);
+$("q-kind").innerHTML=ACT_KINDS.map(([v,t])=>`<option value="${v}">${t}</option>`).join("");
+$("ex-grid").innerHTML="";
+for(const e of EX){
+  const b=document.createElement("button");b.type="button";b.className="ex-card";
+  b.innerHTML=picCard(e.id,"");
+  const t=document.createElement("b");t.textContent=e.title;const m=document.createElement("span");m.textContent=`${e.kind} · ${e.dur}`;
+  b.append(t,m);b.addEventListener("click",()=>openEx(e.id));$("ex-grid").append(b);
+}
+let curEx=null;
+function openEx(id){
+  const e=exById(id);curEx=e;resetTimer();
+  $("ex-ill").innerHTML=picHero(e.id,e.title);$("ex-kind").textContent=e.kind;$("ex-title").textContent=e.title;
+  $("ex-chips").innerHTML="";[e.dur,e.freq,e.level].forEach(x=>{const s=document.createElement("span");s.textContent=x;$("ex-chips").append(s);});
+  $("ex-why").textContent=e.why;
+  $("ex-steps").innerHTML="";e.steps.forEach(x=>{const li=document.createElement("li");li.textContent=x;$("ex-steps").append(li);});
+  $("ex-safety").textContent="Safety: "+e.safety;
+  $("ex-link").innerHTML=["breathe","box","mind"].includes(e.id)?'Read more: <a href="https://www.heart.org/en/healthy-living/healthy-lifestyle/stress-management" target="_blank" rel="noopener">AHA on stress management</a>':e.id==="wallsit"||e.id==="grip"?'Read more: <a href="https://www.heart.org/en/healthy-living/fitness/fitness-basics/strength-and-resistance-training-exercise" target="_blank" rel="noopener">AHA on strength training</a>':'Read more: <a href="https://www.heart.org/en/healthy-living/fitness/fitness-basics/aha-recs-for-physical-activity-in-adults" target="_blank" rel="noopener">AHA activity recommendations</a>';
+  show("main","ex");
+}
+$("ex-back").addEventListener("click",()=>{resetTimer();show("main","move");});
+
+// ---------- guided timer ----------
+let T=null;
+const fmt=s=>`${Math.floor(s/60)}:${pad(s%60)}`;
+function beep(){try{const c=beep.c||(beep.c=new (window.AudioContext||window.webkitAudioContext)());const o=c.createOscillator(),g=c.createGain();o.frequency.value=880;g.gain.setValueAtTime(.12,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.35);o.connect(g).connect(c.destination);o.start();o.stop(c.currentTime+.35);}catch(e){}}
+function resetTimer(){
+  if(T&&T.iv)clearInterval(T.iv);
+  const cfg=curEx?.timer||{mode:"watch"};
+  T={cfg,running:false,iv:null,elapsed:0,set:1,phase:"work",left:cfg.mode==="interval"?cfg.work:cfg.total||0,bt:0};
+  $("t-go").textContent="Start";$("t-log").hidden=true;$("t-status").textContent="";
+  $("breath").hidden=cfg.mode!=="breath";breathTo(1,.3);
+  drawTimer();
+}
+function breathTo(k,sec){const d=$("breath-dot");d.style.transitionDuration=sec+"s";d.style.transform=`scale(${k})`;}
+// cue that is active at second t of a guided session
+const cueAt=(c,t)=>c.cues.filter(x=>x[0]<=t).pop();
+function drawTimer(){
+  const c=T.cfg;
+  if(c.mode==="watch"){$("t-label").textContent=T.running?"Active":"Ready";$("t-clock").textContent=fmt(T.elapsed);$("t-sub").textContent="Tap Finish when you are done";$("t-bar").style.width="0";}
+  else if(c.mode==="breath"){$("t-label").textContent=!T.running&&T.elapsed===0?"Ready":c.phases[T.phase]?.[1]||"Ready";$("t-clock").textContent=fmt(T.left);$("t-sub").textContent=c.sub;$("t-bar").style.width=(100*T.elapsed/c.total)+"%";}
+  else if(c.mode==="guide"){const q=cueAt(c,T.elapsed);$("t-label").textContent=!T.running&&T.elapsed===0?"Ready":T.left<=0?"Well done":q[1];$("t-clock").textContent=fmt(T.left);$("t-sub").textContent=T.left<=0?"Session complete":q[2];$("t-bar").style.width=(100*T.elapsed/c.total)+"%";}
+  else{
+    const total=c.sets*c.work+(c.sets-1)*c.rest;
+    $("t-label").textContent=T.phase==="done"?"Well done":!T.running&&T.elapsed===0?"Ready":T.phase==="work"?c.workLabel:c.restLabel;
+    $("t-clock").textContent=fmt(T.left);
+    $("t-sub").textContent=T.phase==="done"?"All rounds complete":`Round ${T.set} of ${c.sets}`;
+    $("t-bar").style.width=(100*Math.min(T.elapsed,total)/total)+"%";
+  }
+}
+function tick(){
+  const c=T.cfg;T.elapsed++;
+  if(c.mode==="watch"){}
+  else if(c.mode==="breath"){
+    T.left--;T.bt++;
+    breathPhase();
+    if(T.left<=0){finishTimer();return;}
+  }else if(c.mode==="guide"){
+    T.left--;
+    if(c.cues.some(x=>x[0]===T.elapsed&&x[0]>0))beep();
+    if(T.left<=0){finishTimer();return;}
+  }else{
+    T.left--;
+    if(T.left<=0){
+      if(T.phase==="work"&&T.set<c.sets){T.phase="rest";T.left=c.rest;beep();}
+      else if(T.phase==="rest"){T.phase="work";T.set++;T.left=c.work;beep();}
+      else{finishTimer();return;}
+    }
+  }
+  drawTimer();
+}
+// start the breathing phase that begins at the current second, if any
+function breathPhase(){const ph=T.cfg.phases,cyc=ph.reduce((a,x)=>a+x[0],0);let pos=T.bt%cyc;
+  for(const [i,x] of ph.entries()){if(pos===0){T.phase=i;breathTo(x[2],x[0]);return;}pos-=x[0];if(pos<0)return;}}
+function finishTimer(){
+  clearInterval(T.iv);T.running=false;if(T.cfg.mode==="interval"){T.phase="done";T.left=0;}
+  if(T.cfg.mode==="breath"){T.left=0;breathTo(1,1);}
+  beep();drawTimer();$("t-go").textContent="Start again";
+  $("t-log").hidden=T.elapsed<30;$("t-log").textContent=`Log ${Math.max(1,Math.round(T.elapsed/60))} min`;
+}
+$("t-go").addEventListener("click",()=>{
+  if(T.phase==="done"||(T.cfg.mode!=="watch"&&T.left<=0))resetTimer();
+  if(T.running){ // pause, or finish a stopwatch
+    clearInterval(T.iv);T.running=false;
+    if(T.cfg.mode==="watch"){finishTimer();return;}
+    $("t-go").textContent="Resume";$("t-log").hidden=T.elapsed<30;$("t-log").textContent=`Log ${Math.max(1,Math.round(T.elapsed/60))} min`;drawTimer();return;
+  }
+  T.running=true;$("t-log").hidden=true;$("t-go").textContent=T.cfg.mode==="watch"?"Finish":"Pause";
+  if(T.cfg.mode==="breath"&&T.bt===0)requestAnimationFrame(breathPhase);
+  T.iv=setInterval(tick,1000);drawTimer();
+});
+$("t-reset").addEventListener("click",resetTimer);
+$("t-log").addEventListener("click",async()=>{
+  const p=person(sel);if(!p)return;
+  const a={id:mkId(),pid:p.id,date:todayStr(),min:Math.max(1,Math.round(T.elapsed/60)),ex:curEx.id,created:new Date().toISOString()};
+  try{await api.saveActivity(p,a);$("t-status").textContent=`Logged ${a.min} min for ${p.name}.`;$("t-log").hidden=true;renderAll();}
+  catch(e){$("t-status").textContent="Could not save: "+(e?.code||"error")+".";}
+});
+$("q-save").addEventListener("click",async()=>{
+  const p=person(sel);if(!p)return;
+  const n=+$("q-min").value;if(!(n>=1&&n<=600)){$("q-status").textContent="Enter minutes between 1 and 600.";return;}
+  const a={id:mkId(),pid:p.id,date:todayStr(),min:n,ex:$("q-kind").value,created:new Date().toISOString()};
+  try{await api.saveActivity(p,a);$("q-min").value="";$("q-status").textContent="Saved.";renderAll();}
+  catch(e){$("q-status").textContent="Could not save: "+(e?.code||"error")+".";}
+});
+function weekStart(){const n=new Date();const d=(n.getDay()+6)%7;const m=new Date(n.getFullYear(),n.getMonth(),n.getDate()-d);return `${m.getFullYear()}-${pad(m.getMonth()+1)}-${pad(m.getDate())}`;}
+function renderMove(p){
+  const ws=weekStart();
+  const mins=activityOf(p).filter(a=>a.date>=ws).reduce((s,a)=>s+(+a.min||0),0);
+  const goal=p.shared?420:150;
+  $("week-min").textContent=mins;
+  $("week-goal").textContent=p.shared?`of ${goal} active minutes this week (60 a day for children)`:`of ${goal} active minutes this week`;
+  $("ring-fg").style.strokeDashoffset=String(201*(1-Math.min(1,mins/goal)));
+  const last=readingsOf(p).slice().sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time))[0];
+  const k=last?classify(last.sys,last.dia,ageOn(p.birth,last.date),p.preg):null;
+  const w=$("move-warn");w.hidden=!(k==="crisis"||(last&&(last.sys>=180||last.dia>=110)));
+  w.textContent="Your last reading was very high. Rest today and contact your doctor before exercising.";
+  $("move-diab").hidden=!/diab/i.test(p.cond||"");
+}
+
+nowFields();
+renderAll();
+initStore();
+</script>
+
+</body></html>
