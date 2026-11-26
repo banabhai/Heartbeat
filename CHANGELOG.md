@@ -2,6 +2,13 @@
 
 Heartbeat uses version numbers in the form major.minor.patch. The current version is also shown at the bottom of the app's Help page.
 
+## 1.5.0 (26 November 2026)
+- First aid now has a heart symptom guide, for the person themselves or someone helping them.
+- "Heart attack or heartburn?" comes first: a side-by-side comparison and clear reasons to call the emergency number even when it seems like the stomach.
+- Also covers heart attack (including the less typical signs in women, people with diabetes and older people), cardiac arrest and CPR, stroke and mini-stroke (FAST), torn main artery (aortic dissection), blood clot in the lung, angina, irregular or racing heartbeat (atrial fibrillation), heart failure, and very high blood pressure with symptoms.
+- Each one says what to do now and when to call. Call buttons use the selected country's emergency number; 1813 appears only for Denmark.
+- Written from public guidance by Sundhedsstyrelsen/sundhed.dk, Hjerteforeningen, the American Heart Association, the European Society of Cardiology and the 2025 European first aid guidelines.
+
 ## 1.4.0 (26 November 2026)
 - "Doctor's target" is now "Recommended target". The app works out a home blood pressure target from the person's age and ticked health conditions (high blood pressure, diabetes, kidney disease, heart disease, stroke, frailty).
 - Under 80: 120–129/70–79. From 80, or frail: top number 130–144. No number under 18 or in pregnancy.

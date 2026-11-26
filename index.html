@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-kBgAhW+g0+KEKj1ZFFQEKhalr0e4tAdR5Oq+sxdA6cQ='; style-src 'unsafe-inline'; font-src 'self'; img-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-aLvxHZ/GxuKp82HB00rrn3vRQehFanEO10OeWQqR86Q='; style-src 'unsafe-inline'; font-src 'self'; img-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Heartbeat</title>
@@ -170,6 +170,8 @@ button.ghost{border:1px solid var(--line);color:var(--fg)}
 .aid{border:0;border-radius:16px;background:var(--bg);padding:14px 16px}
 .aid[open]{background:var(--cb)}
 .warn{border:0;background:var(--surface);border-radius:12px}
+.sym-head{margin-top:14px;display:flex;flex-direction:column;gap:4px}.sym-head h3{font-size:1.05rem}
+.cmp{width:100%;border-collapse:collapse;font-size:.9rem;background:var(--surface);border-radius:10px}.cmp th,.cmp td{text-align:left;vertical-align:top;padding:8px;border-bottom:1px solid var(--line)}.cmp thead th{font-weight:600}.cmp tbody th{font-weight:600;width:22%}.cmp tr:last-child>*{border-bottom:0}
 .call a{border-radius:999px}
 .tabs{background:var(--bg);border-radius:999px;padding:4px;display:grid;grid-template-columns:1fr 1fr;gap:4px}
 .tabs button{border:0;border-radius:999px;color:var(--muted)}
@@ -534,6 +536,218 @@ h3.sec{font:600 .8rem var(--display);letter-spacing:.08em;text-transform:upperca
       </div>
     </details>
 
+    <!-- heart symptom guide -->
+    <div class="sym-head" id="symptoms">
+      <h3>Heart symptoms: what could be happening?</h3>
+      <p class="note">Use this to recognise warning signs, in yourself or someone else. Only a doctor can tell what is wrong. If you are unsure whether it is serious, call 112. It is never wrong to call.</p>
+    </div>
+
+    <details class="aid c-crisis" id="sym-heartburn">
+      <summary>Heart attack or heartburn?</summary>
+      <div class="body">
+        <p>A heart attack is often mistaken for heartburn, acid reflux or an upset stomach, especially in women, older people and people with diabetes. You cannot safely tell them apart at home. <strong>If you are in doubt, treat it as a heart attack and call 112.</strong></p>
+        <table class="cmp">
+          <thead><tr><th scope="col"></th><th scope="col">More like heartburn</th><th scope="col">Possible heart attack</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Feels like</th><td>Burning that rises from the stomach towards the throat</td><td>Pressure, squeezing, heaviness or tightness in the chest. Can also feel like indigestion.</td></tr>
+            <tr><th scope="row">Spreads to</th><td>Throat, with a sour or bitter taste in the mouth</td><td>One or both arms, neck, jaw, back or upper belly</td></tr>
+            <tr><th scope="row">When</th><td>After a large or spicy meal, when lying down or bending over</td><td>During effort or stress, but also at rest or at night</td></tr>
+            <tr><th scope="row">Other signs</th><td>Burping, acid in the mouth. Breathing is normal.</td><td>Shortness of breath, cold sweat, nausea, dizziness, sudden weakness, fear or a feeling that something is very wrong</td></tr>
+            <tr><th scope="row">Antacids</th><td>Usually clearly better within a few minutes</td><td>No real change. Feeling a little better after an antacid does not rule out a heart attack.</td></tr>
+          </tbody>
+        </table>
+        <div class="warn">
+          <h3>Call 112, even if you think it is "only the stomach", when</h3>
+          <ul>
+            <li>Chest discomfort lasts more than a few minutes, or keeps coming back</li>
+            <li>It comes with shortness of breath, sweating, nausea, dizziness or pain in the arm, neck, jaw or back</li>
+            <li>It is new for you, or worse or different from your usual heartburn</li>
+            <li>You have high blood pressure, diabetes, high cholesterol, smoke, or have had heart problems before</li>
+          </ul>
+          <div class="call"><a class="ecall" href="tel:112" target="_blank" rel="noopener">Call 112</a><span class="note">If the button does nothing, dial 112 on your phone.</span></div>
+        </div>
+        <p>Do not wait to see if it passes, and do not drive yourself to hospital. Heartburn that happens often should still be checked by your doctor.</p>
+      </div>
+    </details>
+
+    <details class="aid c-crisis" id="sym-mi">
+      <summary>Heart attack</summary>
+      <div class="body">
+        <p>A blood clot blocks blood flow to part of the heart muscle. Fast treatment saves heart muscle and lives.</p>
+        <h3>Common signs</h3>
+        <ul>
+          <li>Pressure, squeezing or pain behind the breastbone lasting more than a few minutes, or that goes away and comes back</li>
+          <li>Pain or discomfort in one or both arms (often the left), neck, jaw, back or upper belly</li>
+          <li>Shortness of breath, cold sweat, nausea or vomiting, dizziness</li>
+        </ul>
+        <h3>Signs that are easy to miss</h3>
+        <ul>
+          <li><b>Women</b> more often have shortness of breath, nausea, back or jaw pain, unusual tiredness, or indigestion-like discomfort, sometimes with little chest pain.</li>
+          <li><b>People with diabetes</b> may feel little or no pain. Sudden breathlessness, weakness, sweating or feeling unwell can be the only signs.</li>
+          <li><b>Older people</b> may have confusion, sudden weakness, breathlessness or fainting instead of chest pain.</li>
+          <li>Warning signs, such as chest discomfort on effort or unusual tiredness, can appear days or weeks before.</li>
+        </ul>
+        <h3>What to do now</h3>
+        <ol>
+          <li>Call 112 straight away. Put the phone on speaker and follow the dispatcher.</li>
+          <li>Sit down or half lie, for example leaning back against a wall with knees bent. Loosen tight clothing.</li>
+          <li>If you have nitroglycerin from your doctor, take it as prescribed.</li>
+          <li>Aspirin: chew one only if the dispatcher tells you to, and never if you are allergic to it.</li>
+          <li>Unlock the door. Stay with the person and keep them calm. Never drive yourself.</li>
+          <li>If they become unresponsive and are not breathing normally, start CPR (see Cardiac arrest).</li>
+        </ol>
+        <div class="call"><a class="ecall" href="tel:112" target="_blank" rel="noopener">Call 112</a><span class="note">If the button does nothing, dial 112 on your phone.</span></div>
+        <div class="meds-box"></div>
+      </div>
+    </details>
+
+    <details class="aid c-crisis" id="sym-arrest">
+      <summary>Cardiac arrest: collapsed, not breathing normally</summary>
+      <div class="body">
+        <p>The heart suddenly stops pumping. The person collapses, does not respond and does not breathe normally. Slow gasping is not normal breathing. Every minute without CPR lowers the chance of survival.</p>
+        <ol>
+          <li>Shout for help. Call 112 and put the phone on speaker.</li>
+          <li>Start CPR: kneel beside them, put your hands in the centre of the chest, push hard and fast, 5 to 6 cm deep, 100 to 120 times a minute. Let the chest rise fully between pushes.</li>
+          <li>If you are trained, give 2 rescue breaths after every 30 pushes. If not, keep pushing without stopping.</li>
+          <li>Send someone for a defibrillator (hjertestarter, AED). The dispatcher can tell you where the nearest one is. Switch it on and follow its voice.</li>
+          <li>Keep going until help takes over or the person wakes up, moves and breathes normally.</li>
+        </ol>
+        <div class="call"><a class="ecall" href="tel:112" target="_blank" rel="noopener">Call 112</a><span class="note">If the button does nothing, dial 112 on your phone.</span></div>
+      </div>
+    </details>
+
+    <details class="aid c-crisis" id="sym-stroke">
+      <summary>Stroke or mini-stroke (TIA)</summary>
+      <div class="body">
+        <p>A clot or a bleed cuts off blood to part of the brain. High blood pressure is the biggest risk factor. Use <b>FAST</b> to check:</p>
+        <ul>
+          <li><b>Face</b>: ask them to smile. Does one side droop?</li>
+          <li><b>Arm</b>: ask them to raise both arms. Does one drift down, or is it weak or numb?</li>
+          <li><b>Speech</b>: is speech slurred or strange, or can't they understand you?</li>
+          <li><b>Time</b>: call 112 at once and note the time the symptoms started.</li>
+        </ul>
+        <p>Other sudden signs: loss of vision in one or both eyes, double vision, loss of balance, severe headache unlike any before, or sudden confusion.</p>
+        <ol>
+          <li>Call 112, even if the symptoms go away within minutes. A mini-stroke (TIA) is a warning that a major stroke may follow.</li>
+          <li>Let them rest lying or half sitting with the head slightly raised. If they vomit or become drowsy, turn them onto their side.</li>
+          <li>Give nothing to eat, drink or swallow, not even aspirin, because swallowing may be affected and a bleed cannot be ruled out.</li>
+          <li>Tell the crew when the symptoms started, and show the readings and medicine list.</li>
+        </ol>
+        <div class="call"><a class="ecall" href="tel:112" target="_blank" rel="noopener">Call 112</a><span class="note">If the button does nothing, dial 112 on your phone.</span></div>
+      </div>
+    </details>
+
+    <details class="aid c-crisis" id="sym-aorta">
+      <summary>Torn main artery (aortic dissection)</summary>
+      <div class="body">
+        <p>Rare but life-threatening. The wall of the body's main artery tears. Very high blood pressure is the main risk factor.</p>
+        <ul>
+          <li>Sudden, severe, tearing or ripping pain in the chest, back or belly, often moving as it goes on</li>
+          <li>Fainting, sweating, shortness of breath, or stroke-like signs</li>
+          <li>A big difference in blood pressure or pulse between the two arms</li>
+        </ul>
+        <ol>
+          <li>Call 112 now and say "sudden tearing chest or back pain".</li>
+          <li>Keep the person still and calm, lying or half sitting.</li>
+          <li>Give no aspirin and nothing to eat or drink.</li>
+        </ol>
+        <div class="call"><a class="ecall" href="tel:112" target="_blank" rel="noopener">Call 112</a><span class="note">If the button does nothing, dial 112 on your phone.</span></div>
+      </div>
+    </details>
+
+    <details class="aid c-crisis" id="sym-pe">
+      <summary>Blood clot in the lung (pulmonary embolism)</summary>
+      <div class="body">
+        <p>Not a heart disease, but it causes chest pain and breathlessness and is often confused with a heart attack.</p>
+        <ul>
+          <li>Sudden shortness of breath, sharp chest pain that is worse when breathing in, a fast heartbeat, coughing up blood, fainting</li>
+          <li>Often after surgery, a long trip, a period in bed, pregnancy, or with a swollen, painful calf</li>
+        </ul>
+        <p>Call 112. Help the person sit upright and keep still.</p>
+        <div class="call"><a class="ecall" href="tel:112" target="_blank" rel="noopener">Call 112</a><span class="note">If the button does nothing, dial 112 on your phone.</span></div>
+      </div>
+    </details>
+
+    <details class="aid c-s2" id="sym-angina">
+      <summary>Angina: chest pain on effort</summary>
+      <div class="body">
+        <p>Narrowed heart arteries give chest pressure or tightness during effort, cold weather, a heavy meal or stress. It usually eases within a few minutes of rest.</p>
+        <ol>
+          <li>Stop and sit down.</li>
+          <li>If you have nitroglycerin from your doctor, take one dose as prescribed.</li>
+          <li>If the pain is not clearly better 5 minutes after the first dose, or lasts more than 15 minutes in total, call 112. Treat it as a heart attack.</li>
+        </ol>
+        <div class="warn">
+          <h3>Call 112 straight away if</h3>
+          <ul>
+            <li>It is the first time you have this kind of chest pain</li>
+            <li>It comes at rest or wakes you up</li>
+            <li>It is stronger, lasts longer or comes more easily than usual</li>
+          </ul>
+          <div class="call"><a class="ecall" href="tel:112" target="_blank" rel="noopener">Call 112</a><span class="note">If the button does nothing, dial 112 on your phone.</span></div>
+        </div>
+        <p>Chest pain on effort that passes with rest still needs a doctor. Book an appointment within days.</p>
+      </div>
+    </details>
+
+    <details class="aid c-s2" id="sym-af">
+      <summary>Irregular or racing heartbeat (atrial fibrillation, palpitations)</summary>
+      <div class="body">
+        <p>The heart beats irregularly, very fast or very slow. Atrial fibrillation (AF) is the most common type and raises the risk of stroke. Some blood pressure monitors show an irregular heartbeat symbol.</p>
+        <ul>
+          <li>Fluttering, pounding or skipping heartbeat</li>
+          <li>Tiredness, shortness of breath, dizziness, or less strength for exercise</li>
+          <li>Sometimes no symptoms at all</li>
+        </ul>
+        <div class="warn">
+          <h3>Call 112 if it comes with</h3>
+          <ul>
+            <li>Chest pain, fainting or near fainting</li>
+            <li>Severe shortness of breath</li>
+            <li>Any stroke sign (FAST)</li>
+          </ul>
+          <div class="call"><a class="ecall" href="tel:112" target="_blank" rel="noopener">Call 112</a><span class="note">If the button does nothing, dial 112 on your phone.</span></div>
+        </div>
+        <ol>
+          <li>Otherwise, sit down and rest. Feel the pulse on the wrist for 30 seconds and note if it is irregular and how fast it is.</li>
+          <li>Call your doctor the same day if it is new, or lasts more than a few hours<span class="dk-only">. When your doctor is closed, call 1813 or lægevagten</span>.</li>
+          <li>Avoid coffee, energy drinks and alcohol until it has been checked.</li>
+        </ol>
+      </div>
+    </details>
+
+    <details class="aid c-s2" id="sym-hf">
+      <summary>Heart failure: breathless, swollen ankles</summary>
+      <div class="body">
+        <p>The heart does not pump as well as it should, so fluid builds up in the lungs and legs. It usually develops slowly. Long-term high blood pressure is a common cause.</p>
+        <ul>
+          <li>Shortness of breath on light effort, or when lying flat. Needing more pillows at night</li>
+          <li>Swollen ankles, legs or belly</li>
+          <li>Weight gain of more than 2 kg in 3 days (weigh yourself each morning)</li>
+          <li>Tiredness, a night-time cough, needing to pass water at night</li>
+        </ul>
+        <div class="warn">
+          <h3>Call 112 if</h3>
+          <ul>
+            <li>Severe shortness of breath at rest, or you can't speak in full sentences</li>
+            <li>Coughing up pink, frothy mucus</li>
+            <li>Chest pain, fainting, or blue lips</li>
+          </ul>
+          <div class="call"><a class="ecall" href="tel:112" target="_blank" rel="noopener">Call 112</a><span class="note">If the button does nothing, dial 112 on your phone.</span></div>
+        </div>
+        <p>While you wait, sit upright with your legs hanging down, not lying flat. If symptoms build up slowly, or your weight rises quickly, call your doctor within a day or two.</p>
+      </div>
+    </details>
+
+    <details class="aid c-s2" id="sym-bp">
+      <summary>Very high blood pressure with symptoms</summary>
+      <div class="body">
+        <p>A reading above 180/120 with chest pain, shortness of breath, severe headache, vision changes, confusion or weakness is an emergency. Call 112.</p>
+        <p><button type="button" class="ghost" data-open="aid-crisis">Open the very high blood pressure steps</button></p>
+      </div>
+    </details>
+
+    <p class="note">Symptom guide written from public guidance by Sundhedsstyrelsen and sundhed.dk, Hjerteforeningen, the American Heart Association, the European Society of Cardiology and the 2025 European first aid guidelines. It is general information, not a diagnosis.</p>
     <p class="note">Checked against the AHA/ACC 2025 blood pressure guideline, the 2025 European first aid guidelines and Region Hovedstaden's 1813 guidance. It does not replace advice from a doctor or the 112 dispatcher.</p>
   </section>
 
@@ -646,7 +860,7 @@ h3.sec{font:600 .8rem var(--display);letter-spacing:.08em;text-transform:upperca
         <p class="note">Version 1, 25 November 2026.</p>
       </div></details>
     </div>
-    <p class="note" id="app-ver">Heartbeat app version 1.4.0</p>
+    <p class="note" id="app-ver">Heartbeat app version 1.5.0</p>
   </section>
 
   <section class="panel" aria-labelledby="hist-h" id="hist" hidden>
@@ -973,6 +1187,7 @@ function setTab(help){
 }
 $("tab-self").addEventListener("click",()=>setTab(false));
 $("tab-help").addEventListener("click",()=>setTab(true));
+document.querySelectorAll("[data-open]").forEach(b=>b.addEventListener("click",()=>openAid(b.dataset.open)));
 function openAid(id){const d=$(id);if(!d)return;show("main","aid");document.querySelectorAll(".aid").forEach(x=>x.open=x===d);d.scrollIntoView({block:"start"});}
 
 // ---------- profile form ----------

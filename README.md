@@ -8,7 +8,7 @@ A family blood pressure log: record readings, see trends, and get general guidan
 Not a medical device and not medical advice. See the in-app terms of use and privacy notice.
 
 
-**Version 1.4.0.** See [CHANGELOG.md](CHANGELOG.md) for what changed in each version.
+**Version 1.5.0.** See [CHANGELOG.md](CHANGELOG.md) for what changed in each version.
 ## Licence
 
 All rights reserved. See [LICENSE](LICENSE). Third-party assets keep their own licences, listed below.
