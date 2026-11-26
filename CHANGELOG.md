@@ -6,6 +6,7 @@ Heartbeat uses version numbers in the form major.minor.patch. The current versio
 - Help now has an "App updates" section with the version number and a "Check for updates" button.
 - The button checks for a newer version and installs it by itself; the app then restarts on the new version. People, readings and settings stay on the device.
 - Without internet, it says so and asks you to try again later.
+- Like a browser, Heartbeat also checks by itself: when it opens, when you come back to it, and every hour. A new version installs in the background and a notice at the top offers "Restart" to start using it, so nothing you are typing is lost.
 
 ## 1.5.0 (26 November 2026)
 - First aid now has a heart symptom guide, for the person themselves or someone helping them.
