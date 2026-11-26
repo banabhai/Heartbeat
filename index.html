@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-aLvxHZ/GxuKp82HB00rrn3vRQehFanEO10OeWQqR86Q='; style-src 'unsafe-inline'; font-src 'self'; img-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-axPApdxP15WHUn+cWyMMvXlfO4UhTo/wK7plB5tbW6I='; style-src 'unsafe-inline'; font-src 'self'; img-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Heartbeat</title>
@@ -860,7 +860,10 @@ h3.sec{font:600 .8rem var(--display);letter-spacing:.08em;text-transform:upperca
         <p class="note">Version 1, 25 November 2026.</p>
       </div></details>
     </div>
-    <p class="note" id="app-ver">Heartbeat app version 1.5.0</p>
+    <h3>App updates</h3>
+    <p class="note" id="app-ver">Heartbeat app version 1.6.0</p>
+    <div class="row"><button type="button" class="ghost" id="upd-btn">Check for updates</button><span class="status" id="upd-status" role="status"></span></div>
+    <p class="note">The update installs by itself. Your people, readings and settings stay on this device.</p>
   </section>
 
   <section class="panel" aria-labelledby="hist-h" id="hist" hidden>
@@ -1661,6 +1664,20 @@ renderAll();
 initStore();
 // standalone site only: cache the app so it opens offline like an installed app
 if("serviceWorker" in navigator&&location.protocol==="https:"&&location.hostname.endsWith("github.io"))navigator.serviceWorker.register("sw.js").catch(()=>{});
+// Check for updates: fetch sw.js again; a new build has a new cache name, installs, takes over, and the page reloads. Data in storage is untouched.
+$("upd-btn").addEventListener("click",async()=>{
+  const st=$("upd-status"),b=$("upd-btn");
+  const reg="serviceWorker" in navigator?await navigator.serviceWorker.getRegistration().catch(()=>null):null;
+  if(!reg){st.textContent="Loading the latest version…";location.reload();return;}
+  b.disabled=true;st.textContent="Checking…";
+  navigator.serviceWorker.addEventListener("controllerchange",()=>location.reload(),{once:true});
+  try{await reg.update();}catch(e){b.disabled=false;st.textContent="Could not check. Connect to the internet and try again.";return;}
+  const w=reg.installing||reg.waiting;
+  if(!w){b.disabled=false;st.textContent="You have the latest version.";return;}
+  st.textContent="New version found. Installing…";
+  w.addEventListener("statechange",()=>{if(w.state==="redundant"){b.disabled=false;st.textContent="The update did not finish. Try again later.";}});
+  if(reg.waiting)reg.waiting.postMessage("skip");
+});
 </script>
 
 </body></html>

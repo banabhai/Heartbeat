@@ -2,6 +2,11 @@
 
 Heartbeat uses version numbers in the form major.minor.patch. The current version is also shown at the bottom of the app's Help page.
 
+## 1.6.0 (26 November 2026)
+- Help now has an "App updates" section with the version number and a "Check for updates" button.
+- The button checks for a newer version and installs it by itself; the app then restarts on the new version. People, readings and settings stay on the device.
+- Without internet, it says so and asks you to try again later.
+
 ## 1.5.0 (26 November 2026)
 - First aid now has a heart symptom guide, for the person themselves or someone helping them.
 - "Heart attack or heartburn?" comes first: a side-by-side comparison and clear reasons to call the emergency number even when it seems like the stomach.
