@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-W41p9L+RAEJwjISago9ssFtOrRhcnpbgjDlJGHGWM8I='; style-src 'unsafe-inline'; font-src 'self'; img-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-kBgAhW+g0+KEKj1ZFFQEKhalr0e4tAdR5Oq+sxdA6cQ='; style-src 'unsafe-inline'; font-src 'self'; img-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Heartbeat</title>
@@ -61,6 +61,15 @@ button.small{padding:6px 10px;font-size:.85rem}
 .who{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px 16px;font-size:.9rem;padding-top:10px}
 .who div{display:flex;flex-direction:column;min-width:0;overflow-wrap:anywhere}
 .who b{font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.conds{border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px 16px}
+.conds legend{font-weight:600;padding:0 4px;font-size:.95rem}
+.conds label,.chkline{flex-direction:row;align-items:flex-start;gap:10px;font-weight:400}
+.conds input,.chkline input{width:20px;height:20px;flex:none;margin-top:1px}
+.rec{border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:6px}
+.rec .rnum{font-family:var(--display);font-size:1.35rem}
+.rec .rnum small{font-family:inherit;font-size:.8rem;color:var(--muted);font-weight:400}
+.rec ul{margin:0;padding-left:18px;font-size:.88rem}
+.rec .src{font-size:.78rem;color:var(--muted)}
 .signed{font-size:.85rem;color:var(--muted);display:flex;align-items:center;gap:8px}
 .signed img{width:24px;height:24px;border-radius:50%}
 .result{border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:8px;border-left:6px solid var(--c);background:var(--cb)}
@@ -295,6 +304,7 @@ h3.sec{font:600 .8rem var(--display);letter-spacing:.08em;text-transform:upperca
     <div class="hero" id="hero" hidden></div>
     <details id="cur-details">
       <summary>Health details</summary>
+      <div class="rec" id="who-rec" style="margin-top:10px"></div>
       <div class="who" id="who"></div>
       <div class="row" style="padding-top:10px"><button type="button" class="ghost small" id="edit-person">Edit details</button></div>
     </details>
@@ -337,16 +347,27 @@ h3.sec{font:600 .8rem var(--display);letter-spacing:.08em;text-transform:upperca
         <label for="p-height">Height <small>cm</small><input type="number" id="p-height" inputmode="decimal" min="40" max="250"></label>
         <label for="p-weight">Weight <small>kg</small><input type="number" id="p-weight" inputmode="decimal" min="2" max="350" step="0.1"></label>
       </div>
-      <div class="grid">
-        <label for="p-tsys">Doctor's target, top <small>optional, e.g. 130</small><input type="number" id="p-tsys" inputmode="numeric" min="80" max="200"></label>
-        <label for="p-tdia">Doctor's target, bottom <small>optional, e.g. 80</small><input type="number" id="p-tdia" inputmode="numeric" min="40" max="130"></label>
+      <fieldset class="conds" id="p-hc">
+        <legend>Health conditions <small>tick all that apply</small></legend>
+        <label><input type="checkbox" value="hbp"> High blood pressure, or I take blood pressure medicine</label>
+        <label><input type="checkbox" value="dm"> Diabetes, type 1 or 2</label>
+        <label><input type="checkbox" value="ckd"> Chronic kidney disease</label>
+        <label><input type="checkbox" value="chd"> <span>Heart disease<br><small>heart attack, angina, heart failure, aneurysm</small></span></label>
+        <label><input type="checkbox" value="stroke"> Stroke or TIA (mini-stroke)</label>
+        <label><input type="checkbox" value="frail"> Frail, falls easily, or often dizzy when standing up</label>
+      </fieldset>
+      <label for="p-cond">Other conditions or notes <small>optional</small><textarea id="p-cond" maxlength="500"></textarea></label>
+      <label for="p-preg" id="p-preg-wrap" class="chkline" hidden><input type="checkbox" id="p-preg"> Currently pregnant <small>lower emergency threshold, 160/110</small></label>
+      <div class="rec" id="p-rec" aria-live="polite"></div>
+      <label for="p-docown" class="chkline"><input type="checkbox" id="p-docown"> My doctor has given me a different personal target</label>
+      <div class="grid" id="p-docwrap" hidden>
+        <label for="p-tsys">Doctor's target, top <small>e.g. 135</small><input type="number" id="p-tsys" inputmode="numeric" min="80" max="200"></label>
+        <label for="p-tdia">Doctor's target, bottom <small>e.g. 85</small><input type="number" id="p-tdia" inputmode="numeric" min="40" max="130"></label>
       </div>
       <label for="p-dphone">Doctor's phone <small>optional, your GP or clinic</small><input type="tel" id="p-dphone" maxlength="30"></label>
       <label for="p-pin">PIN lock <small id="p-pin-hint">optional, 4 to 6 digits. Asked each time this person is opened.</small><input type="password" id="p-pin" inputmode="numeric" maxlength="6" autocomplete="new-password"></label>
       <label for="p-pin2" id="p-pin2-wrap">Repeat PIN<input type="password" id="p-pin2" inputmode="numeric" maxlength="6" autocomplete="new-password"></label>
       <label for="p-pinoff" id="p-pinoff-wrap" style="flex-direction:row;align-items:center;gap:10px;font-weight:400" hidden><input type="checkbox" id="p-pinoff" style="width:auto"> Remove the PIN</label>
-      <label for="p-preg" id="p-preg-wrap" style="flex-direction:row;align-items:center;gap:10px;font-weight:400" hidden><input type="checkbox" id="p-preg" style="width:auto"> Currently pregnant <small>lower emergency threshold, 160/110</small></label>
-      <label for="p-cond">Health conditions <small>e.g. diabetes, kidney disease, heart condition</small><textarea id="p-cond" maxlength="500"></textarea></label>
       <label for="p-meds">Medicines <small>name and dose, if any. Shown to helpers in an emergency.</small><textarea id="p-meds" maxlength="500"></textarea></label>
       <label for="p-guard" id="p-guard-wrap" hidden>Guardians <small>names of parents or guardians who look after these records</small><input type="text" id="p-guard" maxlength="120"></label>
       <p class="note" id="p-childnote" hidden>Under 18, so this person is saved as a child. Their records are shared with every family member you share this log with, so both parents or guardians can follow them.</p>
@@ -589,7 +610,7 @@ h3.sec{font:600 .8rem var(--display);letter-spacing:.08em;text-transform:upperca
       <details><summary>How to measure blood pressure correctly</summary><ul><li>No coffee, smoking or exercise for 30 minutes before. Empty your bladder.</li><li>Sit for 5 minutes with your back supported and feet flat on the floor.</li><li>Rest your arm on a table with the cuff at heart height, on bare skin.</li><li>Don't talk. Take two readings one minute apart and log both.</li><li>Measure at the same times each day, for example morning and evening.</li></ul></details>
       <details><summary>Adding a reading</summary><p>On the <b>Add</b> tab, type the top number (systolic) and the bottom number (diastolic). Pulse and a note are optional. Date and time are set to now. Tap the time line to change them. Tap <b>Save reading</b> and the result appears at once with its colour.</p></details>
       <details><summary>What the colours mean</summary><ul><li><b>Normal</b>: below 120/80.</li><li><b>Elevated</b>: top 120–129, bottom below 80.</li><li><b>High, stage 1</b>: top 130–139 or bottom 80–89.</li><li><b>High, stage 2</b>: 140/90 or above.</li><li><b>Hypertensive crisis</b>: above 180/120, or 160/110 or above in pregnancy. Follow the first aid steps.</li><li><b>Low</b>: below 90/60. Only a concern if you feel dizzy or faint.</li><li>Children under 13 are not colour-coded, because their normal range depends on age, sex and height.</li></ul><p class="note">Based on the AHA/ACC 2025 blood pressure guideline.</p></details>
-      <details><summary>Your doctor's target</summary><p>Your doctor may give you a personal target, for example 130/80. Add it under <b>Profile</b> then <b>Edit details</b>. Readings above it are marked "above target".</p></details>
+      <details><summary>Your recommended target</summary><p>Heartbeat works out a recommended range for home readings from the person's age and the health conditions ticked under <b>Profile</b>, then <b>Edit details</b>. Readings above it are marked "above target".</p><ul><li><b>Under 80</b>: top 120–129 and bottom 70–79. Close to 120 is best, if it is reached without side effects.</li><li><b>80 or older</b>, or frail: top 130–144. Lower than 120 can be too low and cause dizziness and falls.</li><li><b>Diabetes, kidney disease, heart disease or stroke</b> do not change the numbers in the Danish guideline, but they make reaching the target more important.</li><li><b>Under 18 and pregnancy</b>: no number is shown. The child's doctor, or the midwife or doctor, sets the target.</li><li><b>Your doctor's own target</b> always comes first. Tick "My doctor has given me a different personal target" and type it in.</li></ul><p>The numbers apply to home readings and follow the Danish Society of Cardiology's guideline, which matches the 2024 European guideline. They are general guidance, not a prescription. Never start, stop or change medicine because of them.</p><p class="note">Sources: <a href="https://nbv.cardio.dk/kapitel/hypertension/" target="_blank" rel="noopener">Dansk Cardiologisk Selskab, NBV chapter 27, Arteriel hypertension (revised May 2026)</a> · <a href="https://www.sundhed.dk/sundhedsfaglig/laegehaandbogen/hjerte-kar/tilstande-og-sygdomme/oevrige-sygdomme/hypertension/" target="_blank" rel="noopener">Lægehåndbogen on sundhed.dk, Hypertension</a> · <a href="https://doi.org/10.1093/eurheartj/ehae178" target="_blank" rel="noopener">2024 ESC Guidelines on elevated blood pressure and hypertension</a></p></details>
       <details><summary>Calling for help</summary><ul><li><b>112</b>: emergencies, for example chest pain, trouble breathing, stroke signs, or someone who has fainted and doesn't wake.</li><li class="dk-only"><b>1813</b>: medical advice when your own doctor is closed, after 16:00 on weekdays and at weekends (Capital Region).</li><li><b>Your country</b>: the app picks the emergency number from your phone's region setting. If it is wrong, choose your country under the call buttons. Numbers come from <a href="https://en.wikipedia.org/wiki/List_of_emergency_telephone_numbers" target="_blank" rel="noopener">Wikipedia's list of emergency numbers</a> (CC BY-SA 4.0). Check your local number before you need it.</li><li><b>Doctor</b>: appears when you add your doctor's phone number to your profile.</li></ul><p>Tap a button to open your phone's dialer. If nothing happens, dial the number shown.</p></details>
       <details><summary>First aid</summary><p>The <b>First aid</b> tab has steps for very high, high and low blood pressure. Switch between <b>It's me</b> and <b>I'm helping someone</b>. Your medicine list and last reading are shown so you can show them to the ambulance crew.</p></details>
       <details><summary>Exercise and activity</summary><p>The <b>Move</b> tab shows exercises that help blood pressure and the heart, each with an illustration, steps and a guided timer. When you finish, tap <b>Log minutes</b>, or use <b>Log activity</b> for a walk or a bike ride. The ring shows your active minutes this week. Adults should aim for 150 minutes a week. Children aim for 60 minutes a day.</p></details>
@@ -610,7 +631,7 @@ h3.sec{font:600 .8rem var(--display);letter-spacing:.08em;text-transform:upperca
         <p>Profiles for people under 18 are created and managed by a parent or guardian, who is responsible for the data they enter. Readings for children under 13 are not colour-coded, because normal ranges depend on age, sex and height. Ask the child's doctor.</p>
         <h4>6. Your data and privacy</h4>
         <ul>
-          <li><b>What is stored:</b> the profile details you enter (name, birth date, and optionally sex, height, weight, conditions, medicines, your doctor's target and phone number), your readings and notes, your activity log, and your country choice. Health data is a special category of personal data under the EU General Data Protection Regulation (GDPR, Article 9). You choose to enter it, and you can delete it at any time.</li>
+          <li><b>What is stored:</b> the profile details you enter (name, birth date, and optionally sex, height, weight, conditions, medicines, a personal target from your doctor, and your doctor's phone number), your readings and notes, your activity log, and your country choice. Health data is a special category of personal data under the EU General Data Protection Regulation (GDPR, Article 9). You choose to enter it, and you can delete it at any time.</li>
           <li><b>Where it is stored:</b> in the standalone app, only on your own device, in this browser's storage. Inside Claude, in your own Claude account's private storage for this app. Records of children are visible to the family members you share the app with.</li>
           <li><b>What we do not do:</b> the app does not send your data to us or to anyone else. There is no tracking, no analytics, no advertising, and your data is never sold or used outside the app.</li>
           <li><b>Your rights:</b> you can see all your data in the app, export it under <b>Profile</b> then <b>Export</b>, correct it with <b>Edit details</b>, and delete it with <b>Remove person</b>, which also deletes that person's readings. You can also complain to your data protection authority (in Denmark, Datatilsynet).</li>
@@ -625,7 +646,7 @@ h3.sec{font:600 .8rem var(--display);letter-spacing:.08em;text-transform:upperca
         <p class="note">Version 1, 25 November 2026.</p>
       </div></details>
     </div>
-    <p class="note" id="app-ver">Heartbeat app version 1.3.0</p>
+    <p class="note" id="app-ver">Heartbeat app version 1.4.0</p>
   </section>
 
   <section class="panel" aria-labelledby="hist-h" id="hist" hidden>
@@ -687,8 +708,49 @@ function classify(s,d,age,preg){
   if(s>=120) return "elev";
   return "ok";
 }
-function overTarget(p,s,d){return !!((p.tsys&&s>p.tsys)||(p.tdia&&d>p.tdia));}
-function targetText(p){return p.tsys||p.tdia?`${p.tsys||"–"}/${p.tdia||"–"}`:null;}
+// Recommended home BP target. Dansk Cardiologisk Selskab NBV kap. 27 (rev. 2026), matches ESC 2024.
+const HC={hbp:"High blood pressure",dm:"Diabetes",ckd:"Chronic kidney disease",chd:"Heart disease",stroke:"Stroke or TIA",frail:"Frail or dizzy on standing"};
+function recTarget(p,age){
+  const hc=p.hc||[],has=k=>hc.includes(k);
+  if(age==null)return null;
+  if(age<18)return {none:true,why:["No adult target is used under 18. The child's doctor sets the normal range from age, sex and height."]};
+  if(p.preg)return {none:true,why:["In pregnancy, the midwife or doctor sets the target. A reading of 160/110 or above needs urgent help."]};
+  const old=age>=80,frail=has("frail");
+  const t=old||frail?{sys:[130,144],dia:null}:{sys:[120,129],dia:[70,79]};
+  const why=[];
+  why.push(has("hbp")?(old||frail?"Treatment target for home readings. Close to 130 is best, if it is reached without dizziness or side effects.":"Treatment target for home readings. Close to 120 is best, if it is reached without side effects.")
+    :"Healthy range for home readings. Staying here lowers the risk of heart attack and stroke.");
+  if(old)why.push("From age 80 the target is higher, because a top number under 120 can be too low and cause dizziness and falls.");
+  else if(frail)why.push("Frailty or dizziness on standing calls for a gentler target. Agree the exact number with your doctor.");
+  if(["dm","ckd","chd","stroke"].some(has))why.push("Diabetes, kidney disease, heart disease and stroke do not change the number, but they make reaching it more important.");
+  if(has("chd"))why.push("With heart failure or an aneurysm, a heart doctor may set a different number.");
+  const bmi=p.height&&p.weight?p.weight/((p.height/100)**2):null;
+  if(bmi&&bmi>=25)why.push(`BMI ${bmi.toFixed(1)}. Weight does not change the target, but losing a few kilos often lowers blood pressure.`);
+  return {...t,why};
+}
+// The doctor's own target wins; otherwise the recommended one.
+function targetOf(p,age){
+  if(p.tsys||p.tdia)return {doc:true,sys:p.tsys?[null,p.tsys]:null,dia:p.tdia?[null,p.tdia]:null};
+  const r=recTarget(p,age);return r&&!r.none?r:null;
+}
+const rng=a=>a?(a[0]==null?`${a[1]}`:`${a[0]}–${a[1]}`):"–";
+function targetText(p,age){const t=targetOf(p,age);return t?(t.dia||t.doc?`${rng(t.sys)}/${rng(t.dia)}`:`${rng(t.sys)} (top number)`):null;}
+function overTarget(p,s,d,age){const t=targetOf(p,age);return !!(t&&((t.sys&&s>t.sys[1])||(t.dia&&d>t.dia[1])));}
+function renderRec(box,p,age){
+  box.innerHTML="";const t=targetOf(p,age),r=recTarget(p,age);
+  const h=document.createElement("b");h.textContent=t?.doc?"Doctor's personal target":"Recommended target";
+  const n=document.createElement("div");n.className="rnum";
+  if(t){n.textContent=targetText(p,age);const u=document.createElement("small");u.textContent=" mmHg, home readings";n.append(u);}
+  else n.textContent=age==null?"Add a birth date":"No number for this person";
+  box.append(h,n);
+  const ul=document.createElement("ul");
+  const why=t?.doc?["Set by your doctor. It is used instead of the recommended target."+(r&&!r.none?` The general recommendation would be ${r.dia?rng(r.sys)+"/"+rng(r.dia):rng(r.sys)+" (top number)"}.`:"")]:(r?.why||[]);
+  for(const w of why){const li=document.createElement("li");li.textContent=w;ul.append(li);}
+  if(why.length)box.append(ul);
+  const src=document.createElement("div");src.className="src";
+  src.textContent="General guidance from the Danish Society of Cardiology (2026) and the European Society of Cardiology (2024), not a prescription. Your doctor's advice comes first. See Help for sources.";
+  box.append(src);
+}
 function ageOn(birth,dateStr){
   if(!birth) return null;
   const [by,bm,bd]=birth.split("-").map(Number);const [y,m,d]=(dateStr||todayStr()).split("-").map(Number);
@@ -698,6 +760,9 @@ function ageOn(birth,dateStr){
 [[185,90,"crisis"],[150,85,"s2"],[132,78,"s1"],[125,75,"elev"],[115,75,"ok"],[85,55,"low"],[150,55,"s2"]].forEach(([s,d,c])=>console.assert(classify(s,d,40)===c,"classify",s,d));
 console.assert(classify(150,95,8)==="na","child");
 console.assert(classify(162,100,30,true)==="crisis"&&classify(162,100,30,false)==="s2","pregnancy");
+console.assert(targetText({},50)==="120–129/70–79"&&targetText({},85)==="130–144 (top number)"&&targetText({hc:["frail"]},60)==="130–144 (top number)","rec target");
+console.assert(targetText({},15)===null&&targetText({preg:true},30)===null&&targetText({tsys:135,tdia:85},50)==="135/85","rec none/doc");
+console.assert(overTarget({},130,75,50)&&!overTarget({},129,79,50)&&overTarget({},128,80,50)&&!overTarget({},144,95,85)&&overTarget({tsys:140},141,70,50),"over target");
 console.assert(ageOn("2010-11-26","2026-11-25")===15&&ageOn("2010-11-25","2026-11-25")===16,"age");
 
 const $=id=>document.getElementById(id);
@@ -866,7 +931,9 @@ function renderCurrent(p){
   $("cur-meta").textContent=[p.shared?"Child":REL[p.rel],age!=null?age+" years":null].filter(Boolean).join(" · ");
   const who=$("who");who.innerHTML="";
   const bmi=p.height&&p.weight?(p.weight/((p.height/100)**2)).toFixed(1):null;
-  const fields=[["Doctor's target",targetText(p)||"Not set"],["Doctor's phone",p.dphone||"—"],["Height",p.height?p.height+" cm":"—"],["Weight",p.weight?p.weight+" kg":"—"],["BMI",bmi||"—"],["Conditions",p.cond||"None noted"],["Medicines",p.meds||"None noted"]];
+  renderRec($("who-rec"),p,age);
+  const conds=[...(p.hc||[]).map(k=>HC[k]),p.cond].filter(Boolean).join(", ");
+  const fields=[["Doctor's phone",p.dphone||"—"],["Height",p.height?p.height+" cm":"—"],["Weight",p.weight?p.weight+" kg":"—"],["BMI",bmi||"—"],["Conditions",conds||"None noted"],["Medicines",p.meds||"None noted"]];
   if(p.shared)fields.push(["Guardians",p.guard||"—"]);
   if(p.preg)fields.push(["Pregnancy","Yes, emergency threshold 160/110"]);
   for(const [k,v] of fields){const d=document.createElement("div");const b=document.createElement("b");b.textContent=k;const s=document.createElement("span");s.textContent=v;d.append(b,s);who.append(d);}
@@ -880,7 +947,7 @@ function renderCurrent(p){
     const c=CATS[classify(last.sys,last.dia,ageOn(p.birth,last.date),p.preg)];hero.className="hero "+c.cls;
     const big=document.createElement("div");big.className="big";big.textContent=`${last.sys}/${last.dia}`;
     const u=document.createElement("small");u.textContent=" mmHg";big.append(u);
-    const cat=document.createElement("div");cat.className="cat";const dot=document.createElement("i");dot.className="dot";cat.append(dot,c.label+(overTarget(p,last.sys,last.dia)?" · above target":""));
+    const cat=document.createElement("div");cat.className="cat";const dot=document.createElement("i");dot.className="dot";cat.append(dot,c.label+(overTarget(p,last.sys,last.dia,ageOn(p.birth,last.date))?" · above target":""));
     const w=document.createElement("div");w.className="when-l";w.textContent=`Last reading · ${last.date===todayStr()?"today":fmtDay(last.date)} at ${last.time}`;
     hero.append(big,cat,w);
   }
@@ -890,7 +957,7 @@ function renderMeds(p){
     box.innerHTML="";
     const h=document.createElement("h3");h.textContent=`${p.name}'s medicines and conditions, for the ambulance crew`;
     const m=document.createElement("div");m.className="meds";
-    m.textContent=`Medicines: ${p.meds||"none noted"}\nConditions: ${p.cond||"none noted"}`;
+    m.textContent=`Medicines: ${p.meds||"none noted"}\nConditions: ${[...(p.hc||[]).map(k=>HC[k]),p.cond].filter(Boolean).join(", ")||"none noted"}`;
     const last=readingsOf(p).slice().sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time))[0];
     if(p.dphone)m.textContent+=`\nDoctor: ${p.dphone}`;
     if(last)m.textContent+=`\nLast reading: ${last.sys}/${last.dia} on ${last.date} at ${last.time}`;
@@ -923,7 +990,8 @@ function openForm(p,first){
   $("p-cond").value=p?.cond||"";
   $("p-meds").value=p?.meds||"";
   $("p-guard").value=p?.guard||"";
-  $("p-tsys").value=p?.tsys||"";$("p-tdia").value=p?.tdia||"";$("p-dphone").value=p?.dphone||"";$("p-preg").checked=!!p?.preg;
+  $("p-tsys").value=p?.tsys||"";$("p-tdia").value=p?.tdia||"";$("p-docown").checked=!!(p?.tsys||p?.tdia);
+  document.querySelectorAll("#p-hc input").forEach(c=>c.checked=!!p?.hc?.includes(c.value));$("p-dphone").value=p?.dphone||"";$("p-preg").checked=!!p?.preg;
   $("p-pin").value=$("p-pin2").value="";$("p-pinoff").checked=false;$("p-pinoff-wrap").hidden=!p?.pin;
   $("p-pin-hint").textContent=p?.pin?"A PIN is set. Type a new one to change it, or leave empty to keep it.":"optional, 4 to 6 digits. Asked each time this person is opened.";
   $("p-del").hidden=!p;$("p-cancel").hidden=!!first&&!people().length;
@@ -937,7 +1005,15 @@ function childHint(){
   if(child)$("p-rel").value="child";
   $("p-guard-wrap").hidden=!child;$("p-childnote").hidden=!child;
   $("p-preg-wrap").hidden=$("p-sex").value!=="female";
+  recPreview();
 }
+function formHc(){return [...document.querySelectorAll("#p-hc input:checked")].map(c=>c.value);}
+function recPreview(){
+  const own=$("p-docown").checked;$("p-docwrap").hidden=!own;
+  const num=id=>$(id).value?+$(id).value:null;
+  renderRec($("p-rec"),{hc:formHc(),preg:$("p-sex").value==="female"&&$("p-preg").checked,height:num("p-height"),weight:num("p-weight"),tsys:own?num("p-tsys"):null,tdia:own?num("p-tdia"):null},ageOn($("p-birth").value));
+}
+["p-hc","p-preg","p-docown","p-tsys","p-tdia","p-height","p-weight"].forEach(id=>$(id).addEventListener("input",recPreview));
 $("p-sex").addEventListener("change",childHint);
 $("p-birth").addEventListener("change",childHint);
 $("p-cancel").addEventListener("click",()=>{const back=editing?"main":"intro";editing=null;show(back);});
@@ -966,7 +1042,7 @@ $("pform").addEventListener("submit",async e=>{
   const id=old?old.id:(!mine.some(x=>x.id==="self")&&!shared?"self":mkId());
   const p={id,name,rel:shared?"child":$("p-rel").value,birth,sex:$("p-sex").value||null,height:num("p-height"),weight:num("p-weight"),
     cond:$("p-cond").value.trim()||null,meds:$("p-meds").value.trim()||null,guard:shared?($("p-guard").value.trim()||null):null,shared,
-    tsys:num("p-tsys"),tdia:num("p-tdia"),dphone:$("p-dphone").value.trim()||null,preg:$("p-sex").value==="female"&&$("p-preg").checked,updated:new Date().toISOString()};
+    hc:formHc(),tsys:$("p-docown").checked?num("p-tsys"):null,tdia:$("p-docown").checked?num("p-tdia"):null,dphone:$("p-dphone").value.trim()||null,preg:$("p-sex").value==="female"&&$("p-preg").checked,updated:new Date().toISOString()};
   $("p-status").textContent="Saving…";
   try{
     if(pin)p.pin=await pinHash(pin);else if(old?.pin&&!$("p-pinoff").checked)p.pin=old.pin;
@@ -1050,7 +1126,8 @@ $("entry").addEventListener("submit",async e=>{
   const st=document.createElement("strong");st.textContent=`${p.name}: ${s}/${d} · ${cat.label}`;
   const m=document.createElement("span");m.textContent=emText(cat.msg);
   box.append(st,m);
-  if(targetText(p)){const t=document.createElement("span");t.textContent=overTarget(p,s,d)?`Above ${p.name}'s doctor's target of ${targetText(p)}.`:`Within ${p.name}'s doctor's target of ${targetText(p)}.`;box.append(t);}
+  const ag=ageOn(p.birth,date),tt=targetText(p,ag);
+  if(tt){const kind=targetOf(p,ag).doc?"doctor's":"recommended",t=document.createElement("span");t.textContent=overTarget(p,s,d,ag)?`Above ${p.name}'s ${kind} target of ${tt}.`:`Within ${p.name}'s ${kind} target of ${tt}.`;box.append(t);}
   if(k==="crisis"||k==="low"){
     const c=document.createElement("div");c.className="call";
     const dial=EM.num.replace(/[^0-9+]/g,"");c.innerHTML=`<a class="ecall" href="tel:${dial}" target="_blank" rel="noopener">Call ${EM.num}</a><span class="note">If the button does nothing, dial ${EM.num} on your phone.</span>`;
@@ -1087,7 +1164,7 @@ function renderHistory(){
     const v=document.createElement("div");v.className="v";v.textContent=`${r.sys}/${r.dia} `;
     if(r.pulse){const sm=document.createElement("small");sm.textContent=`pulse ${r.pulse}`;v.append(sm);}
     if(r.parts){const sm=document.createElement("small");sm.textContent=`average of ${r.parts.length}`;v.append(sm);}
-    const lab=document.createElement("div");lab.className="lab";lab.textContent=c.label+(overTarget(p,r.sys,r.dia)?" · above target":"")+(r.note?` · ${r.note}`:"");
+    const lab=document.createElement("div");lab.className="lab";lab.textContent=c.label+(overTarget(p,r.sys,r.dia,ageOn(p.birth,r.date))?" · above target":"")+(r.note?` · ${r.note}`:"");
     mid.append(v,lab);
     const del=document.createElement("button");del.type="button";del.className="ghost small del";
     del.textContent=pendingDel===r.id?"Confirm delete":"Delete";
@@ -1361,7 +1438,7 @@ function renderMove(p){
   const k=last?classify(last.sys,last.dia,ageOn(p.birth,last.date),p.preg):null;
   const w=$("move-warn");w.hidden=!(k==="crisis"||(last&&(last.sys>=180||last.dia>=110)));
   w.textContent="Your last reading was very high. Rest today and contact your doctor before exercising.";
-  $("move-diab").hidden=!/diab/i.test(p.cond||"");
+  $("move-diab").hidden=!((p.hc||[]).includes("dm")||/diab/i.test(p.cond||""));
 }
 
 nowFields();
